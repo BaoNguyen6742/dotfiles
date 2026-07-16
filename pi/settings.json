@@ -1,0 +1,42 @@
+{
+  "theme": "dark/dark",
+  "packages": [
+    {
+      "source": "git:github.com/apmantza/pi-free",
+      "extensions": [
+        "-index.ts"
+      ]
+    },
+    "npm:pi-subagents",
+    "npm:@ayulab/oh-my-pi",
+    "npm:@ff-labs/pi-fff",
+    "npm:pi-btw",
+    "npm:pi-extmgr"
+  ],
+  "defaultProvider": "openai-codex",
+  "defaultModel": "gpt-5.6-sol",
+  "defaultThinkingLevel": "high",
+  "compaction": {
+    "enabled": true
+  },
+  "images": {
+    "autoResize": true,
+    "blockImages": false
+  },
+  "enableSkillCommands": true,
+  "showHardwareCursor": false,
+  "terminal": {
+    "showTerminalProgress": true
+  },
+  "steeringMode": "one-at-a-time",
+  "followUpMode": "one-at-a-time",
+  "transport": "auto",
+  "httpIdleTimeoutMs": 300000,
+  "enableInstallTelemetry": false,
+  "defaultProjectTrust": "ask",
+  "doubleEscapeAction": "tree",
+  "treeFilterMode": "default",
+  "warnings": {
+    "anthropicExtraUsage": true
+  }
+}

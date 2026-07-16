@@ -1,11 +1,30 @@
-# Introduction
+# Dotfiles
 
-Config files for Linux and WSL
+Configuration shared between Windows, WSL, and Arch Linux.
 
-# Installation
+## Installation
 
-- Each folder either contain a folder for Linux or WSL or not. If there isn't any subfolder, both Linux and WSL use the same configuration.
+Shell configuration folders contain their own installer. When a folder has platform subdirectories, pass the platform name:
 
-- Each folder has a `install` file that contains the location of the configuration file. 
+```bash
+cd fish
+./install.fish Linux
+```
 
-- To install the configuration, run `install.[sh/fish] <Platform you are running>`. Eg: `./install.fish WSL`
+Pi has separate installers for Arch/Linux and Windows PowerShell.
+
+Arch/Linux:
+
+```bash
+cd pi
+./install.sh
+```
+
+Windows PowerShell:
+
+```powershell
+cd pi
+.\install.ps1
+```
+
+See [`pi/README.md`](pi/README.md) for Pi package, extension, and authentication details.
