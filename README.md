@@ -11,9 +11,19 @@ cd fish
 ./install.fish Linux
 ```
 
-Pi has separate installers for Arch/Linux and Windows PowerShell.
+AGS and Pi have installers that back up changed destination files before replacing them.
 
-Arch/Linux:
+AGS top bar (Arch/Hyprland):
+
+```bash
+cd ags
+./install.sh --dry-run
+./install.sh --generate-types
+```
+
+See [`ags/README.md`](ags/README.md) for system dependencies, Hyprland startup, and optional hardware integration.
+
+Pi on Arch/Linux:
 
 ```bash
 cd pi

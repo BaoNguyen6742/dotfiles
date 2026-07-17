@@ -1,0 +1,336 @@
+$bg: #0f111a;
+$surface: #1a1c25;
+$surface-hover: #292d3e;
+$border: #000000;
+$fg: #ffffff;
+$muted: #7d8b99;
+$cyan: #89ddff;
+$blue: #82aaff;
+$green: #c3e88d;
+$orange: #f78c6c;
+$yellow: #ffcb6b;
+$purple: #c792ea;
+$red: #ff5370;
+
+window.Bar {
+  background: $bg;
+  color: $fg;
+  border-bottom: 2px solid $cyan;
+  font-family: "JetBrainsMono Nerd Font", "Font Awesome 6 Free", sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.bar-content {
+  min-height: 36px;
+  padding: 0 7px;
+}
+
+.bar-section > button,
+.bar-section > menubutton > button,
+.bar-section > box,
+.workspaces,
+.active-window,
+.tray {
+  min-height: 26px;
+}
+
+.bar-section button,
+.workspaces {
+  background: $surface;
+  color: $fg;
+  border: 1px solid $border;
+  border-radius: 5px;
+  box-shadow: none;
+  padding: 3px 9px;
+  margin: 3px 0;
+  transition: 150ms ease;
+}
+
+.bar-section button:hover,
+.workspaces button:hover {
+  background: $surface-hover;
+  border-color: $cyan;
+  color: $fg;
+}
+
+.power > button {
+  background: $red;
+  min-width: 44px;
+  min-height: 40px;
+  padding: 0 0 0 3px;
+  border-radius: 7px;
+  color: white;
+  font-size: 26px;
+}
+
+.power > button label {
+  margin-left: -3px;
+  margin-right: 3px;
+}
+
+.workspaces {
+  padding: 0 3px;
+}
+
+.workspaces button.workspace {
+  background: transparent;
+  color: #546e7a;
+  border: 0;
+  border-radius: 4px;
+  min-width: 20px;
+  padding: 2px 5px;
+  margin: 2px 0;
+}
+
+.workspaces button.workspace.active {
+  background: rgba(137, 221, 255, 0.15);
+  color: $cyan;
+  box-shadow: inset 0 -2px $cyan;
+}
+
+.active-window {
+  color: $blue;
+}
+
+.media > button {
+  color: $purple;
+  min-width: 130px;
+}
+
+.tray {
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: 5px;
+  padding: 0 3px;
+  margin: 3px 0;
+}
+
+.tray .tray-item {
+  background: transparent;
+  border: 0;
+  padding: 2px 5px;
+  margin: 0;
+}
+
+.status-drawer {
+  min-height: 30px;
+}
+
+.drawer-toggle {
+  color: $cyan;
+  min-width: 30px;
+  padding-left: 7px;
+  padding-right: 7px;
+  font-size: 18px;
+}
+
+.drawer-toggle.active {
+  background: rgba(137, 221, 255, 0.16);
+  border-color: $cyan;
+}
+
+.drawer-content {
+  padding: 0;
+}
+
+.nightlight {
+  min-width: 31px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: $muted;
+  font-size: 18px;
+}
+
+.nightlight label {
+  margin-left: -2px;
+  margin-right: 2px;
+}
+
+.nightlight.active {
+  color: $orange;
+  border-color: $orange;
+  background: rgba(247, 140, 108, 0.13);
+}
+
+.network > button { color: $cyan; }
+.bluetooth > button { color: $blue; }
+.bluetooth.connected > button { color: $green; }
+.bluetooth.disconnected > button { color: $muted; }
+.audio > button { color: $orange; }
+.brightness > button { color: $yellow; }
+.system-monitor > button {
+  color: $purple;
+  min-width: 320px;
+}
+
+.system-monitor > button label {
+  min-width: 300px;
+}
+.battery > button { color: $green; }
+.clock > button { color: $green; }
+
+.clock .date {
+  color: $green;
+}
+
+.clock .separator {
+  color: $muted;
+}
+
+.battery.critical > button,
+button.danger {
+  background: $red;
+  color: white;
+}
+
+popover > contents {
+  background: $surface;
+  color: $fg;
+  border: 1px solid $cyan;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.65);
+  padding: 0;
+}
+
+.popover-content {
+  min-width: 290px;
+  padding: 14px;
+}
+
+.panel-title {
+  color: $cyan;
+  font-size: 16px;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+.panel-subtitle {
+  color: $muted;
+  font-weight: 800;
+  margin-top: 3px;
+}
+
+.popover-content button {
+  background: #20232e;
+  color: $fg;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  box-shadow: none;
+  padding: 7px 9px;
+  margin: 0;
+}
+
+.popover-content button:hover {
+  background: $surface-hover;
+  border-color: $cyan;
+}
+
+.popover-content scale trough {
+  min-height: 5px;
+  background: #3b4252;
+  border-radius: 999px;
+}
+
+.popover-content scale trough highlight {
+  background: $cyan;
+  border-radius: 999px;
+}
+
+.popover-content scale trough slider {
+  min-width: 16px;
+  min-height: 16px;
+  background: $fg;
+  border-radius: 999px;
+}
+
+.dim { color: $muted; }
+.connected { color: $green; }
+.media-title { color: $purple; font-weight: 800; }
+.cover-art { border-radius: 8px; }
+.media-controls button { font-size: 18px; }
+.network-list { margin: 2px 0; }
+.audio-panel { min-width: 350px; }
+.audio-device-list button.selected,
+.audio-routes button.selected,
+.power-profile-list button.selected {
+  background: rgba(195, 232, 141, 0.12);
+  border-color: $green;
+}
+
+.power-profile-current {
+  color: $green;
+}
+
+.power-panel { min-width: 210px; }
+.power-action.danger { color: $red; }
+
+.monitor-panel {
+  min-width: 480px;
+}
+
+.plot-mode {
+  background: #151821;
+  border: 1px solid #252936;
+  border-radius: 7px;
+  padding: 3px 5px;
+}
+
+.plot-mode > label {
+  margin: 0 7px;
+}
+
+.plot-mode button {
+  padding: 4px 10px;
+}
+
+.plot-mode button.active {
+  background: rgba(137, 221, 255, 0.17);
+  border-color: $cyan;
+  color: $cyan;
+}
+
+.metric-row {
+  background: #151821;
+  border: 1px solid #252936;
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+
+.metric-icon {
+  min-width: 22px;
+  font-size: 17px;
+}
+
+.metric-title {
+  color: $muted;
+}
+
+.metric-value {
+  color: $fg;
+  font-weight: 800;
+}
+
+.metric-plot {
+  min-height: 58px;
+  background: rgba(0, 0, 0, 0.16);
+  border-radius: 5px;
+}
+
+.cpu-metric .metric-icon,
+.cpu-metric .metric-plot { color: $yellow; }
+.temp-metric .metric-icon,
+.temp-metric .metric-plot { color: $orange; }
+.gpu-temp-metric .metric-icon,
+.gpu-temp-metric .metric-plot { color: $red; }
+.gpu-metric .metric-icon,
+.gpu-metric .metric-plot { color: $blue; }
+.ram-metric .metric-icon,
+.ram-metric .metric-plot { color: $purple; }
+.download-metric .metric-icon,
+.download-metric .metric-plot { color: $cyan; }
+.upload-metric .metric-icon,
+.upload-metric .metric-plot { color: $green; }
+
+
+calendar { padding: 6px; }
