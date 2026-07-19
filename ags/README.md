@@ -24,7 +24,7 @@ The installer copies the tracked configuration to `${AGS_CONFIG_DIR:-$HOME/.conf
 
 The generated `node_modules/` links and `@girs/` definitions are intentionally not tracked. `--generate-types` recreates the definitions after AGS and Astal are installed.
 
-The optional Intel CPU wattage helper requires privilege escalation and can be installed separately:
+The optional Intel/AMD CPU wattage helper requires privilege escalation and can be installed separately:
 
 ```bash
 ./install.sh --install-rapl-helper
@@ -72,27 +72,158 @@ LEFT                                                   RIGHT
 │   ├── Tray.tsx                    StatusNotifier tray items and menus
 │   └── Workspaces.tsx              Occupied workspaces and active window
 ├── scripts/
+│   ├── monitor-brightness.sh       Read/set backlight or DDC/CI brightness
 │   ├── nightlight.sh               Toggle and adjust Hyprshade
 │   ├── restart.sh                  Restart AGS after editing
 │   └── system-stats.sh             Produce performance data as JSON
 └── helpers/
-    ├── ags-rapl-read.c              Minimal CPU energy reader
-    └── install-rapl-helper.sh       Install the reader with one capability
+    ├── ags-rapl-read.c              Minimal Intel/AMD CPU energy reader
+    └── install-rapl-helper.sh       Install the reader with limited capabilities
 ```
 
 Generated TypeScript definitions live in `@girs/`. They are useful for editor completion but are not application source.
 
-## Required packages
+## Dependencies
 
-This setup was created with the current AGS 3/Astal stack on Arch Linux:
+Package names vary significantly between distributions. The executable, library, typelib, and D-Bus service names below are the authoritative requirements; translate them to the packages supplied by the target distribution.
+
+### Core graphical stack (required)
+
+| Requirement | Used for | Common package/project name |
+|---|---|---|
+| Hyprland | Compositor, monitor/workspace/window IPC | `hyprland` |
+| AGS **version 3** | Application runner, bundler, GTK4 TSX runtime | `aylurs-gtk-shell`, `aylurs-gtk-shell-git`, or AGS built from source |
+| GJS | JavaScript runtime and GI loader | `gjs` |
+| GTK 4 | Widgets and rendering | `gtk4` / `libgtk-4-*` |
+| GTK4 Layer Shell | Anchored exclusive top-bar window | `gtk4-layer-shell` |
+| GObject Introspection | Loading the Astal typelibs from GJS | `gobject-introspection` |
+| Gnim/AGS TypeScript modules | TSX and reactive primitives imported from `ags` | normally installed or resolved by AGS 3 |
+| Node.js/npm tooling | Resolving the AGS/Gnim modules during setup; the running app still uses GJS | `nodejs` and `npm` when not pulled in by AGS |
+| Sass executable named `sass` | Compiling `style.scss` | `dart-sass` |
+
+Do not install the unrelated package named only `ags` if it is Adventure Game Studio. Confirm that `ags --version` reports AGS 3.
+
+### Astal libraries and typelibs (required)
+
+Installing the Astal meta-package is easiest when the distribution provides one. Otherwise install the base GTK4/IO library and every service library listed here:
+
+| GI namespace imported by this config | Astal component/package usually containing it |
+|---|---|
+| `Astal-4.0` | `libastal`, `libastal-4`, or Astal GTK4 base |
+| `AstalHyprland-0.1` | `libastal-hyprland` |
+| `AstalWp-0.1` | `libastal-wireplumber` |
+| `AstalNetwork-0.1` | `libastal-network` |
+| `AstalBluetooth-0.1` | `libastal-bluetooth` |
+| `AstalBattery-0.1` | `libastal-battery` |
+| `AstalPowerProfiles-0.1` | `libastal-powerprofiles` / `libastal-power-profiles` |
+| `AstalMpris-0.1` | `libastal-mpris` |
+| `AstalTray-0.1` | `libastal-tray` |
+
+Arch-based distributions commonly provide all of these through `libastal-meta`. On distributions without packaged AGS 3/Astal, build both from their upstream projects; installing only GTK and GJS is not sufficient.
+
+### Required command-line utilities
+
+These commands are used directly by the tracked scripts:
+
+| Executable | Typical package | Purpose |
+|---|---|---|
+| `bash` | `bash` | Installer and helper scripts |
+| `awk` | `gawk`, `mawk`, or another POSIX awk | Numeric calculations and parsing |
+| `jq` | `jq` | Performance JSON and Hyprland JSON parsing |
+| `ip` | `iproute2` | Selecting the default network interface |
+| `timeout` | `coreutils` | Bounding GPU probe execution |
+| `find`, `sort` | `findutils`, `coreutils` | Installation and powercap discovery |
+| `hyprctl` | normally shipped with Hyprland | Workspaces, active window, logout, and night-light control |
+| `systemctl` | `systemd` | Suspend, reboot, and shutdown buttons |
+
+The power menu currently assumes systemd. On a non-systemd distribution, change the commands in `widgets/Power.tsx` to that system's equivalents.
+
+### Runtime services
+
+The libraries need the corresponding system/session services, not just client packages:
+
+| Feature | Service/backend needed |
+|---|---|
+| Wi-Fi and wired networking | NetworkManager |
+| Bluetooth | BlueZ system service |
+| Audio | PipeWire plus WirePlumber |
+| Battery | UPower |
+| Power-profile selector | power-profiles-daemon or another service implementing `net.hadess.PowerProfiles` |
+| Media controls | MPRIS-compatible media players on the session bus |
+| System tray | StatusNotifierItem-compatible applications |
+| All Astal services | A working user D-Bus session |
+
+Network, Bluetooth, battery, media, tray, and power-profile widgets may be empty when their hardware or service is absent.
+
+### Hardware-specific and optional utilities
+
+| Utility | When it is needed | Typical package |
+|---|---|---|
+| `brightnessctl` | Internal laptop-panel brightness | `brightnessctl` |
+| `ddcutil` | External monitor DDC/CI brightness | `ddcutil`; also requires the kernel `i2c-dev` module and user access to `/dev/i2c-*` |
+| `nvidia-smi` | NVIDIA utilization, temperature, VRAM, and power | NVIDIA driver utilities, commonly `nvidia-utils` |
+| `radeontop` | AMD GPU utilization fallback when DRM does not expose `gpu_busy_percent` | `radeontop` |
+| `hyprlock` | Lock button | `hyprlock` |
+| `nm-connection-editor` | Advanced network button and secured-network setup | often `network-manager-applet` or `network-manager-gnome` |
+| `blueman-manager` | Advanced Bluetooth button | `blueman` |
+| `pavucontrol` | Advanced audio mixer button | `pavucontrol` |
+| Nerd Font | Icons used as label glyphs | JetBrains Mono Nerd Font or another current Nerd Font |
+
+Missing GPU or sensor tools do not prevent the bar from starting: unavailable metrics display `—`. Brightness controls hide when neither a usable kernel backlight nor DDC/CI display is found.
+
+The night-light drawer action additionally expects `warm_1.glsl` through `warm_5.glsl` under `~/.config/hypr/hypr_conf/shaders/`. Its current `hyprctl eval` command targets this dotfiles setup's Lua Hyprland configuration provider; replace `scripts/nightlight.sh` with `hyprshade` or a normal `hyprctl keyword decoration:screen_shader ...` implementation on a stock Hyprland configuration.
+
+### Optional CPU wattage helper build dependencies
+
+`./install.sh --install-rapl-helper` additionally needs:
+
+- A C compiler available as `cc` (`gcc` or `clang`)
+- Linux userspace kernel headers providing `linux/capability.h` (often `linux-api-headers` or part of libc development headers)
+- `install` from coreutils
+- `setcap` and `getcap` from libcap tools (`libcap`, `libcap2-bin`, or an equivalent package)
+- `pkexec` plus a running polkit authentication agent, or run `helpers/install-rapl-helper.sh` through `sudo`
+- `/dev/cpu/0/msr` for the Intel/AMD MSR fallback; the kernel `msr` module may need to be loaded
+
+The helper is optional when CPU package power is already readable through hwmon or `/sys/class/powercap`. Without any supported source, only CPU watts display as `—`.
+
+### Convenience packages for Arch Linux
+
+A broad Arch installation matching every supported feature is:
 
 ```bash
-yay -S aylurs-gtk-shell-git libastal-meta dart-sass
+yay -S --needed \
+  hyprland aylurs-gtk-shell libastal-meta nodejs npm dart-sass \
+  jq networkmanager bluez pipewire wireplumber upower power-profiles-daemon \
+  brightnessctl ddcutil radeontop \
+  network-manager-applet blueman pavucontrol hyprlock \
+  ttf-jetbrains-mono-nerd polkit gcc libcap
 ```
 
-It also uses `jq`, `brightnessctl`, `radeontop`, NetworkManager, BlueZ, PipeWire/WirePlumber, UPower, and a Nerd Font. Some modules can still run when an optional tool is missing, but their corresponding data or action will be unavailable.
+Install `nvidia-utils` only on NVIDIA systems. Depending on the repository snapshot, the AGS and Astal package names may use a `-git` suffix.
 
-Do not install the AUR package named only `ags`; that package is Adventure Game Studio.
+### Verification on a new distribution
+
+After translating the package names, verify the important commands and generate the GI definitions:
+
+```bash
+for command in ags gjs sass bash awk jq ip timeout hyprctl; do
+  command -v "$command" || echo "MISSING: $command"
+done
+
+./install.sh --generate-types
+find "${AGS_CONFIG_DIR:-$HOME/.config/ags}/@girs" \
+  -maxdepth 1 -iname 'astal*.d.ts' -print
+```
+
+The generated list should include the Astal namespaces in the table above. Then test the hardware helpers independently:
+
+```bash
+~/.config/ags/scripts/system-stats.sh | jq .
+~/.config/ags/scripts/monitor-brightness.sh DP-1
+ags run ~/.config/ags/app.tsx --log-file /tmp/ags.log
+```
+
+Replace `DP-1` with a connector reported by `hyprctl monitors`. A brightness result of `-1` means that connector has no usable backlight/DDC backend, which is valid on unsupported displays.
 
 ## How the application starts
 
@@ -316,7 +447,7 @@ Use the generated files under `@girs/` to discover available classes, methods, p
 
 There are three layers:
 
-1. `scripts/system-stats.sh` reads Linux interfaces such as `/proc/stat`, `/proc/meminfo`, sysfs, `radeontop`, and network byte counters.
+1. `scripts/system-stats.sh` auto-detects Linux interfaces such as `/proc`, hwmon, DRM, powercap, `nvidia-smi`, or `radeontop` and reads network byte counters.
 2. It prints one JSON object:
 
    ```json
@@ -337,8 +468,8 @@ There are three layers:
 History is kept with ordinary TypeScript:
 
 ```ts
-const history = (values: number[], value: number) =>
-  [...values, value].slice(-34)
+const history = (values: number[], value: number | null) =>
+  value === null ? values : [...values, value].slice(-34)
 ```
 
 At a two-second interval, 34 samples represent about 68 seconds.
@@ -366,38 +497,38 @@ onCleanup(unsubscribe)
 
 `onCleanup` is important: it prevents old subscriptions from remaining after a monitor or widget is removed.
 
-## CPU wattage helper
+## Hardware portability
 
-Intel RAPL energy counters are root-readable on this system. Giving capabilities to `gjs` would be unsafe because every GJS program would inherit them.
+The scripts prefer standard kernel interfaces and degrade gracefully:
 
-Instead, this setup uses:
+- CPU temperature: `k10temp`, `zenpower`, `coretemp`, or `cpu_thermal`
+- CPU power: hwmon, readable powercap, then the optional fixed-purpose helper
+- GPU selection: the DRM `boot_vga` card, avoiding a sleeping discrete GPU on most hybrid laptops
+- GPU metrics: card-specific DRM/hwmon, `nvidia-smi` for NVIDIA, or `radeontop` as an AMD fallback
+- Internal-panel brightness: the kernel backlight interface through `brightnessctl`
+- External-monitor brightness: per-connector DDC/CI through `ddcutil`
+
+Unsupported metrics show `—`; an unavailable brightness control is hidden. Unusual machines can override detection with `AGS_GPU_CARD=cardN`, `AGS_GPU_VENDOR=amd|intel|nvidia`, `AGS_CPU_TEMP_PATH`, `AGS_CPU_POWER_PATH`, `AGS_CPU_ENERGY_PATH`, `AGS_BRIGHTNESS_BACKEND=backlight|ddc`, or `AGS_BACKLIGHT_DEVICE`.
+
+### CPU wattage helper
+
+Root-only package-energy counters must not be exposed by giving capabilities to `gjs`. This setup instead installs a small root-owned helper at:
 
 ```text
 /usr/local/libexec/ags-rapl-read
 ```
 
-The helper:
-
-- Accepts no arguments
-- Opens one hard-coded RAPL energy file
-- Drops its capability immediately after opening it
-- Prints only the energy counter
-- Is installed root-owned so the unprivileged user cannot replace it
-
-Reinstall it after changing its C source:
+The helper accepts no arguments, opens only fixed Linux powercap paths or fixed Intel/AMD package-energy MSRs, drops its capabilities immediately after opening the source, and prints the energy counter plus its wrap range. Install or reinstall it with:
 
 ```bash
-pkexec ~/.config/ags/helpers/install-rapl-helper.sh \
-  ~/.config/ags/helpers/ags-rapl-read.c
+./install.sh --install-rapl-helper
 ```
 
-The shell script compares consecutive energy readings:
+The shell script compares consecutive readings and handles counter wrap:
 
 ```text
 watts = energy difference / elapsed time
 ```
-
-The AMD GPU does not expose a power sensor, so its wattage remains unavailable. Intel iGPU wattage would be a separate metric and should not be labelled as AMD GPU power.
 
 ## Styling with GTK CSS/SCSS
 
