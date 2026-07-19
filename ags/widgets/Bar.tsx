@@ -18,6 +18,7 @@ import {
 
 export default function Bar({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) {
   let window: Astal.Window
+  const connector = gdkmonitor.connector || ""
   const { TOP, LEFT, RIGHT } = Astal.WindowAnchor
 
   onCleanup(() => window.destroy())
@@ -48,7 +49,7 @@ export default function Bar({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) {
           <NetworkStatus />
           <BluetoothStatus />
           <AudioStatus />
-          <BrightnessStatus />
+          <BrightnessStatus connector={connector} />
           <SystemMonitor />
           <BatteryStatus />
         </box>

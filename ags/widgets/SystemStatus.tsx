@@ -1,11 +1,12 @@
 import Battery from "gi://AstalBattery"
 import Bluetooth from "gi://AstalBluetooth"
+import GLib from "gi://GLib"
 import Network from "gi://AstalNetwork"
 import PowerProfiles from "gi://AstalPowerProfiles"
 import Wp from "gi://AstalWp"
 import Gtk from "gi://Gtk?version=4.0"
 import type { Accessor } from "ags"
-import { createBinding, createComputed, For, With } from "ags"
+import { createBinding, createComputed, For, onCleanup, With } from "ags"
 import { execAsync } from "ags/process"
 import { createPoll } from "ags/time"
 
@@ -289,37 +290,74 @@ export function AudioStatus() {
   )
 }
 
-export function BrightnessStatus() {
+const BRIGHTNESS_SCRIPT = GLib.build_filenamev([
+  GLib.get_home_dir(),
+  ".config",
+  "ags",
+  "scripts",
+  "monitor-brightness.sh",
+])
+
+export function BrightnessStatus({ connector }: { connector: string }) {
+  let brightnessReady = false
   const brightness = createPoll(
-    0.5,
+    -1,
     2000,
-    [
-      "bash",
-      "-c",
-      `value=$(brightnessctl g); max=$(brightnessctl m); awk -v v=$value -v m=$max 'BEGIN { print v / m }'`,
-    ],
-    (value) => Number(value.trim()),
+    [BRIGHTNESS_SCRIPT, connector],
+    (value) => {
+      const parsed = Number(value.trim())
+      brightnessReady = Number.isFinite(parsed) && parsed >= 0
+      return brightnessReady ? parsed : -1
+    },
   )
+  const available = brightness((value) => value >= 0)
+  let pendingUpdate = 0
+
+  const setBrightness = (value: number) => {
+    if (!brightnessReady || brightness.peek() < 0) return
+    if (pendingUpdate) GLib.source_remove(pendingUpdate)
+    pendingUpdate = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 150, () => {
+      safeExec([
+        BRIGHTNESS_SCRIPT,
+        connector,
+        `${Math.round(value * 100)}`,
+      ])
+      pendingUpdate = 0
+      return GLib.SOURCE_REMOVE
+    })
+  }
+
+  onCleanup(() => {
+    if (pendingUpdate) GLib.source_remove(pendingUpdate)
+  })
 
   return (
-    <menubutton class="brightness" tooltipText="Brightness">
+    <menubutton
+      class="brightness"
+      visible={available}
+      tooltipText={`Brightness: ${connector}`}
+    >
       <box spacing={7}>
         <label label="󰃠" />
-        <label label={brightness((value) => `${Math.round(value * 100)}%`)} />
+        <label
+          label={brightness((value) =>
+            value < 0 ? "—" : `${Math.round(value * 100)}%`,
+          )}
+        />
       </box>
       <popover>
         <box class="popover-content brightness-panel" orientation={Gtk.Orientation.VERTICAL} spacing={9}>
-          <label class="panel-title" label="Brightness" xalign={0} />
+          <label class="panel-title" label={`Brightness · ${connector}`} xalign={0} />
           <box spacing={8}>
             <label label="󰃞" />
             <slider
               hexpand
               widthRequest={260}
-              min={0.05}
+              min={0.01}
               max={1}
-              value={brightness}
+              value={brightness((value) => (value < 0 ? 0.5 : value))}
               onChangeValue={(_slider, _scrollType, value: number) =>
-                safeExec(["brightnessctl", "set", `${Math.round(value * 100)}%`])
+                setBrightness(value)
               }
             />
             <label label="󰃠" />

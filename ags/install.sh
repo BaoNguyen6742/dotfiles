@@ -17,7 +17,7 @@ Installs the AGS configuration into:
 Options:
   --dry-run              Show changes without writing files
   --generate-types       Regenerate local Astal TypeScript definitions
-  --install-rapl-helper  Install the optional Intel CPU wattage helper via pkexec
+  --install-rapl-helper  Install the optional Intel/AMD CPU wattage helper via pkexec
 EOF
 }
 
@@ -104,9 +104,9 @@ if $install_rapl_helper; then
     helper_source="$config_dir/helpers/ags-rapl-read.c"
 
     if $dry_run; then
-        echo "Would install Intel RAPL helper from: $helper_source"
+        echo "Would install CPU package-energy helper from: $helper_source"
     elif ! command -v pkexec >/dev/null 2>&1; then
-        echo "Cannot install RAPL helper: pkexec is not installed." >&2
+        echo "Cannot install CPU package-energy helper: pkexec is not installed." >&2
         exit 1
     else
         pkexec "$helper_installer" "$helper_source"

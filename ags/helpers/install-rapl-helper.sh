@@ -16,7 +16,9 @@ cc -O2 -Wall -Wextra -Werror -D_FORTIFY_SOURCE=3 -fstack-protector-strong \
 
 install -d -o root -g root -m 0755 /usr/local/libexec
 install -o root -g root -m 0755 "$TEMP_BINARY" "$DESTINATION"
-setcap cap_dac_read_search=ep "$DESTINATION"
+# cap_dac_read_search opens root-only powercap files; cap_sys_rawio opens the
+# fixed /dev/cpu/0/msr fallback. The helper accepts no paths or MSR addresses.
+setcap cap_dac_read_search,cap_sys_rawio=ep "$DESTINATION"
 
 echo "Installed $DESTINATION"
 getcap "$DESTINATION"

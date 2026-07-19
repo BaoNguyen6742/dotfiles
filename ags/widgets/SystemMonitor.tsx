@@ -18,12 +18,12 @@ const [plotMode, setPlotMode] = createState<PlotMode>("line")
 
 type Sample = {
   cpu: number
-  cpuTemp: number
+  cpuTemp: number | null
   cpuWatts: number | null
-  gpu: number
-  gpuTemp: number
+  gpu: number | null
+  gpuTemp: number | null
   gpuWatts: number | null
-  vram: number
+  vram: number | null
   ram: number
   down: number
   up: number
@@ -42,12 +42,12 @@ type Stats = Sample & {
 
 const empty: Stats = {
   cpu: 0,
-  cpuTemp: 0,
+  cpuTemp: null,
   cpuWatts: null,
-  gpu: 0,
-  gpuTemp: 0,
+  gpu: null,
+  gpuTemp: null,
   gpuWatts: null,
-  vram: 0,
+  vram: null,
   ram: 0,
   down: 0,
   up: 0,
@@ -61,7 +61,8 @@ const empty: Stats = {
   gpuTempHistory: [],
 }
 
-const history = (values: number[], value: number) => [...values, value].slice(-34)
+const history = (values: number[], value: number | null) =>
+  value === null ? values : [...values, value].slice(-34)
 
 const stats = createPoll(empty, 2000, [SCRIPT], (stdout, previous) => {
   try {
@@ -186,6 +187,14 @@ function compactBytes(value: number) {
   return `${Math.round(value)}B`
 }
 
+function percent(value: number | null) {
+  return value === null ? "—" : `${value.toFixed(0)}%`
+}
+
+function temperature(value: number | null) {
+  return value === null ? "—" : `${value.toFixed(0)}°C`
+}
+
 function watts(value: number | null) {
   return value === null ? "— W" : `${value.toFixed(1)} W`
 }
@@ -261,77 +270,86 @@ export default function SystemMonitor() {
             </button>
           </box>
 
-          <MetricRow
-            icon="󰍛"
-            title="CPU"
-            className="cpu-metric"
-            value={stats(
-              (value) => `${value.cpu.toFixed(0)}%  ${watts(value.cpuWatts)}`,
-            )}
-            plotValues={stats((value) => value.cpuHistory)}
-            ceiling={100}
-            color="#ffcb6b"
-          />
+          <scrolledwindow
+            hscrollbarPolicy={Gtk.PolicyType.NEVER}
+            vscrollbarPolicy={Gtk.PolicyType.AUTOMATIC}
+            propagateNaturalHeight
+            maxContentHeight={650}
+          >
+            <box orientation={Gtk.Orientation.VERTICAL} spacing={10}>
+              <MetricRow
+                icon="󰍛"
+                title="CPU"
+                className="cpu-metric"
+                value={stats(
+                  (value) => `${value.cpu.toFixed(0)}%  ${watts(value.cpuWatts)}`,
+                )}
+                plotValues={stats((value) => value.cpuHistory)}
+                ceiling={100}
+                color="#ffcb6b"
+              />
 
-          <MetricRow
-            icon="󰢮"
-            title="CPU temperature"
-            className="temp-metric"
-            value={stats((value) => `${value.cpuTemp.toFixed(0)}°C`)}
-            plotValues={stats((value) => value.cpuTempHistory)}
-            ceiling={100}
-            color="#f78c6c"
-          />
+              <MetricRow
+                icon="󰢮"
+                title="CPU temperature"
+                className="temp-metric"
+                value={stats((value) => temperature(value.cpuTemp))}
+                plotValues={stats((value) => value.cpuTempHistory)}
+                ceiling={100}
+                color="#f78c6c"
+              />
 
-          <MetricRow
-            icon="󰢮"
-            title="GPU"
-            className="gpu-metric"
-            value={stats(
-              (value) => `${value.gpu.toFixed(0)}%  ${watts(value.gpuWatts)}`,
-            )}
-            plotValues={stats((value) => value.gpuHistory)}
-            ceiling={100}
-            color="#82aaff"
-          />
+              <MetricRow
+                icon="󰢮"
+                title="GPU"
+                className="gpu-metric"
+                value={stats(
+                  (value) => `${percent(value.gpu)}  ${watts(value.gpuWatts)}`,
+                )}
+                plotValues={stats((value) => value.gpuHistory)}
+                ceiling={100}
+                color="#82aaff"
+              />
 
-          <MetricRow
-            icon="󰔏"
-            title="GPU temperature"
-            className="gpu-temp-metric"
-            value={stats((value) => `${value.gpuTemp.toFixed(0)}°C`)}
-            plotValues={stats((value) => value.gpuTempHistory)}
-            ceiling={120}
-            color="#ff5370"
-          />
+              <MetricRow
+                icon="󰔏"
+                title="GPU temperature"
+                className="gpu-temp-metric"
+                value={stats((value) => temperature(value.gpuTemp))}
+                plotValues={stats((value) => value.gpuTempHistory)}
+                ceiling={120}
+                color="#ff5370"
+              />
 
-          <MetricRow
-            icon=""
-            title="RAM"
-            className="ram-metric"
-            value={stats((value) => `${value.ram.toFixed(0)}%`)}
-            plotValues={stats((value) => value.ramHistory)}
-            ceiling={100}
-            color="#c792ea"
-          />
+              <MetricRow
+                icon=""
+                title="RAM"
+                className="ram-metric"
+                value={stats((value) => `${value.ram.toFixed(0)}%`)}
+                plotValues={stats((value) => value.ramHistory)}
+                ceiling={100}
+                color="#c792ea"
+              />
 
-          <MetricRow
-            icon="󰓅"
-            title="Download"
-            className="download-metric"
-            value={stats((value) => bytes(value.down))}
-            plotValues={stats((value) => value.downHistory)}
-            color="#89ddff"
-          />
+              <MetricRow
+                icon="󰓅"
+                title="Download"
+                className="download-metric"
+                value={stats((value) => bytes(value.down))}
+                plotValues={stats((value) => value.downHistory)}
+                color="#89ddff"
+              />
 
-          <MetricRow
-            icon="󰓇"
-            title="Upload"
-            className="upload-metric"
-            value={stats((value) => bytes(value.up))}
-            plotValues={stats((value) => value.upHistory)}
-            color="#c3e88d"
-          />
+              <MetricRow
+                icon="󰓇"
+                title="Upload"
+                className="upload-metric"
+                value={stats((value) => bytes(value.up))}
+                plotValues={stats((value) => value.upHistory)}
+                color="#c3e88d"
+              />
+            </box>
+          </scrolledwindow>
 
         </box>
       </popover>
