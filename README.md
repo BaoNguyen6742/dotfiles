@@ -21,6 +21,17 @@ cd ags
 ./install.sh --generate-types
 ```
 
+To bring edits made directly in `~/.config/ags` back into the repository:
+
+```bash
+cd ags
+./capture.sh --dry-run
+./capture.sh
+git diff -- .
+```
+
+Commit and push the reviewed changes, then run `./install.sh` after pulling them on another machine.
+
 See [`ags/README.md`](ags/README.md) for system dependencies, Hyprland startup, and optional hardware integration.
 
 Pi on Arch/Linux:
