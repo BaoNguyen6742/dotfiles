@@ -22,6 +22,17 @@ cd ~/git_packages/dotfiles/ags
 
 The installer copies the tracked configuration to `${AGS_CONFIG_DIR:-$HOME/.config/ags}`, preserves executable permissions, skips unchanged files, and backs up changed destination files. It does not delete unrelated local files or restart the running bar.
 
+If you edit the installed configuration directly, capture those changes back into the repository with:
+
+```bash
+cd ~/git_packages/dotfiles/ags
+./capture.sh --dry-run
+./capture.sh
+git diff -- .
+```
+
+After reviewing the diff, commit and push it. On another machine, clone or pull the repository and run `./install.sh` to apply it. `capture.sh` only imports the managed top-level files and the `helpers/`, `scripts/`, and `widgets/` source trees; it ignores generated definitions and installer backups. It does not propagate deletions, so remove obsolete repository files explicitly with `git rm`.
+
 The generated `node_modules/` links and `@girs/` definitions are intentionally not tracked. `--generate-types` recreates the definitions after AGS and Astal are installed.
 
 The optional Intel/AMD CPU wattage helper requires privilege escalation and can be installed separately:
@@ -47,7 +58,7 @@ LEFT                                                   RIGHT
 
 - Power, clock, media, network, Bluetooth, audio, brightness, performance, and battery open clickable popovers.
 - The system tray and Hyprshade warm-light control are hidden behind a left-facing drawer arrow.
-- Empty Hyprland workspaces are hidden.
+- Empty Hyprland workspaces are hidden unless they are currently visible on a monitor.
 - The performance popover can switch between line and bar plots.
 - A bar is created for every connected monitor.
 
@@ -368,7 +379,7 @@ Prefer an argument array over one heavily quoted command string. It avoids shell
 
 ### Render reactive lists: `<For>`
 
-Occupied workspaces and tray items use `<For>`:
+Shown workspaces and tray items use `<For>`:
 
 ```tsx
 <For each={occupiedWorkspaces}>

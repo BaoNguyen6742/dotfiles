@@ -14,15 +14,15 @@ export function Workspaces() {
   const focused = createBinding(hyprland, "focusedWorkspace")
 
   // Astal's workspace client lists can briefly stay stale after swap_ws.sh
-  // moves several clients in one batch. Hyprland's workspace JSON has the
-  // authoritative window counts, so use it to decide which buttons are shown.
-  const occupied = createPoll<WorkspaceSummary[]>(
+  // moves several clients in one batch. Use Hyprland's JSON to show occupied
+  // workspaces plus every workspace currently visible on a monitor.
+  const shown = createPoll<WorkspaceSummary[]>(
     [],
     500,
     [
       "bash",
       "-c",
-      `hyprctl workspaces -j | jq -c '[.[] | select(.id > 0 and .windows > 0) | {id, name}] | sort_by(.id)'`,
+      `jq -sc '.[0] as $workspaces | (.[1] | map(.activeWorkspace.id)) as $visible | [$workspaces[] | . as $workspace | select(.id > 0 and (.windows > 0 or ($visible | index($workspace.id)))) | {id, name}] | sort_by(.id)' <(hyprctl workspaces -j) <(hyprctl monitors -j)`,
     ],
     (output, previous) => {
       try {
@@ -43,8 +43,8 @@ export function Workspaces() {
   )
 
   return (
-    <box class="workspaces" spacing={2} visible={occupied((items) => items.length > 0)}>
-      <For each={occupied}>
+    <box class="workspaces" spacing={2} visible={shown((items) => items.length > 0)}>
+      <For each={shown}>
         {(workspace) => (
           <button
             class={focused((active) =>
