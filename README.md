@@ -95,6 +95,60 @@ The `assets` package installs the images required by Hyprlock, Swaylock, and Wez
 
 Install `assets` alongside those packages. Its `face.png` is an optimized 512×512 copy for the lock screen; the original full-resolution image is not tracked. Install the Material GTK theme separately if using the `desktop` package. Theme assets under `~/.themes` are intentionally not tracked.
 
+## Install the SDDM system configuration
+
+SDDM is managed separately because its configuration lives under `/etc` and `/usr/local`, outside your home directory. The `sddm` system package installs a self-contained `sugar-candy-dotfiles` theme without modifying the package-owned theme under `/usr/share`.
+
+Install the required tools:
+
+```bash
+sudo pacman -S --needed sddm stow acl
+```
+
+If the repository is below a private mode-`0700` home directory, allow only the `sddm` user to traverse the home directory and read the linked theme:
+
+```bash
+sudo setfacl -m u:sddm:x "$HOME"
+sudo -u sddm test -r \
+  "$PWD/system-packages/sddm/usr/local/share/sddm/themes/sugar-candy-dotfiles/Main.qml"
+```
+
+Preview the system links:
+
+```bash
+sudo ./scripts/stow-system.sh --simulate --verbose sddm
+```
+
+The existing `/etc/sddm.conf` will initially conflict. Back it up rather than deleting it permanently, remove the original, and preview again:
+
+```bash
+sudo cp -a /etc/sddm.conf /etc/sddm.conf.pre-stow
+sudo rm /etc/sddm.conf
+sudo ./scripts/stow-system.sh --simulate --verbose sddm
+```
+
+Install when the second preview is clean:
+
+```bash
+sudo ./scripts/stow-system.sh --verbose sddm
+```
+
+Optionally preview the theme in a window before activating it:
+
+```bash
+sddm-greeter-qt6 --test-mode --theme \
+  "$PWD/system-packages/sddm/usr/local/share/sddm/themes/sugar-candy-dotfiles"
+```
+
+Reboot to apply it. Running `sudo systemctl restart sddm` also applies it, but immediately ends the current graphical session.
+
+To remove the links and restore the previous configuration:
+
+```bash
+sudo ./scripts/stow-system.sh --delete sddm
+sudo mv /etc/sddm.conf.pre-stow /etc/sddm.conf
+```
+
 ## Install on WSL
 
 ### 1. Install Git and GNU Stow
@@ -199,8 +253,11 @@ packages/
 ├── desktop/
 ├── assets/
 └── pi/
+system-packages/
+└── sddm/
 scripts/
 ├── stow.sh
+├── stow-system.sh
 ├── ags/setup.sh
 └── pi/install.ps1
 docs/
