@@ -18,6 +18,7 @@ Configuration shared between Arch Linux, WSL, and Windows. Unix-like systems use
 | `btop` | `~/.config/btop/` | Arch Linux or WSL |
 | `waybar` | `~/.config/waybar/` | Arch Linux; fallback for AGS |
 | `desktop` | GTK, Qt, Swappy, Swaylock, and MIME defaults | Arch Linux |
+| `assets` | `~/Documents/Pic/` | Images used by Hyprlock, Swaylock, and WezTerm |
 | `pi` | `~/.pi/agent/` | Arch Linux or WSL |
 
 Do not install `fish-linux` and `fish-wsl` together; they manage the same destination.
@@ -43,7 +44,7 @@ For the complete Arch setup:
 
 ```bash
 ./scripts/stow.sh --simulate --verbose \
-  bash fish-linux ags hypr nvim wezterm dunst rofi btop waybar desktop pi
+  bash fish-linux ags hypr nvim wezterm dunst rofi btop waybar desktop assets pi
 ```
 
 The preview does not modify your home directory. If Stow reports a conflict, back up or remove the existing destination and run the preview again. For example:
@@ -58,7 +59,7 @@ Handle each reported path individually. Do not use `stow --adopt` unless you int
 
 ```bash
 ./scripts/stow.sh --verbose \
-  bash fish-linux ags hypr nvim wezterm dunst rofi btop waybar desktop pi
+  bash fish-linux ags hypr nvim wezterm dunst rofi btop waybar desktop assets pi
 ```
 
 You can install only selected packages by listing fewer names. For example:
@@ -84,16 +85,15 @@ If you installed AGS, generate its local Astal TypeScript definitions:
 
 Restart Pi after installing the `pi` package, then authenticate with `/login` if needed.
 
-The Hyprlock, Swaylock, and WezTerm appearance settings reference these personal image files, which are not stored in this repository:
+The `assets` package installs the images required by Hyprlock, Swaylock, and WezTerm:
 
 ```text
 ~/Documents/Pic/bg_2B_sddm.png
 ~/Documents/Pic/bg_2B.png
 ~/Documents/Pic/face.png
-~/Pic/bg_2B.png
 ```
 
-Install the Material GTK theme separately if using the `desktop` package. Theme assets under `~/.themes` are intentionally not tracked.
+Install `assets` alongside those packages. Its `face.png` is an optimized 512×512 copy for the lock screen; the original full-resolution image is not tracked. Install the Material GTK theme separately if using the `desktop` package. Theme assets under `~/.themes` are intentionally not tracked.
 
 ## Install on WSL
 
@@ -153,7 +153,7 @@ Pull the latest changes and refresh the links for the packages installed on that
 cd ~/.dotfiles
 git pull
 ./scripts/stow.sh --restow \
-  bash fish-linux ags hypr nvim wezterm dunst rofi btop waybar desktop pi
+  bash fish-linux ags hypr nvim wezterm dunst rofi btop waybar desktop assets pi
 ```
 
 On WSL, use `fish-wsl` instead of `fish-linux` and omit `ags` unless it is needed.
@@ -197,6 +197,7 @@ packages/
 ├── btop/
 ├── waybar/
 ├── desktop/
+├── assets/
 └── pi/
 scripts/
 ├── stow.sh

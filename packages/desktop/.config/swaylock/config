@@ -4,7 +4,7 @@ show-failed-attempts
 daemonize
 
 # --- BACKGROUND ---
-image=$HOME/Pic/bg_2B.png
+image=$HOME/Documents/Pic/bg_2B.png
 color=0F111A
 
 # --- POSITIONING ---
