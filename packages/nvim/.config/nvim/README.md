@@ -1,13 +1,77 @@
-# Neovim Kickstart Config
+# Neovim configuration
 
-This repo contains my custom Neovim config, built on top of [kickstart.nvim](https://github.com/nvim-lua/kickstart.nvim). It's designed to provide a clean, modern setup with LSP support, autocomplete, formatting, and everything else you'd expect from a serious Neovim setup.
+This is a Neovim 0.11+ configuration based on [kickstart.nvim](https://github.com/nvim-lua/kickstart.nvim). It uses `lazy.nvim` for plugins and Mason for language servers and development tools.
 
-> [!IMPORTANT]
-> Since the original video was recorded, Neovim has been updated to **v0.11.2** (as of 2025-07-13), and this config has been adapted accordingly.
-> If you're still on Neovim **v0.10.x**, use the legacy setup on the [v0.10.1 branch](https://github.com/hendrikmi/neovim-kickstart-config/tree/v0.10.1).
+## Requirements
 
-### 🎥 Full Setup Walkthrough
+Required:
 
-Want to follow along and set this up from scratch? Watch the full video guide:
+- Neovim 0.11 or newer
+- Git
+- A Nerd Font for icons
 
-[![Full Neovim Setup from Scratch in 2025](https://img.youtube.com/vi/KYDG3AHgYEs/0.jpg)](https://youtu.be/KYDG3AHgYEs?si=I71UjuoQg2fHLGyu)
+Recommended system tooling:
+
+```bash
+sudo pacman -S --needed \
+  base-devel ripgrep fd unzip curl nodejs npm python python-pip
+```
+
+`make` builds Telescope's native FZF extension. Node.js/npm and Python support tools installed by Mason.
+
+## Install
+
+From the dotfiles repository root:
+
+```bash
+./scripts/stow.sh --simulate --verbose nvim
+./scripts/stow.sh --verbose nvim
+```
+
+On first launch, `lazy.nvim` clones itself into Neovim's data directory and installs the configured plugins. Mason then installs the configured tools, including TypeScript, Python, Docker, JSON, YAML, and Lua language servers plus Ruff, StyLua, shfmt, Prettier, and related formatters.
+
+Start Neovim and allow the initial installations to finish:
+
+```bash
+nvim
+```
+
+## Verify
+
+Inside Neovim, inspect the plugin and tool state:
+
+```vim
+:Lazy
+:Mason
+:checkhealth
+```
+
+Useful external checks:
+
+```bash
+nvim --version | head -1
+rg --version
+make --version | head -1
+```
+
+## Updating
+
+Update the repository and refresh the Stow link:
+
+```bash
+git pull
+./scripts/stow.sh --restow nvim
+```
+
+Then use `:Lazy update` for plugins and `:Mason` for language-server or formatter updates. Commit intentional changes to `lazy-lock.json` so other machines receive the same plugin revisions.
+
+## Troubleshooting
+
+- **Plugin installation failed:** confirm Git and network access, then open `:Lazy` and retry the failed operation.
+- **Telescope live grep is unavailable:** install `ripgrep`.
+- **The native FZF extension did not build:** install `base-devel` and `make`, then rebuild it through `:Lazy`.
+- **Icons are boxes:** install a Nerd Font and configure the terminal to use it.
+- **LSP or formatting is unavailable:** inspect `:Mason`, `:LspInfo`, `:NullLsInfo`, and `:checkhealth`.
+- **A tool cannot be downloaded:** ensure `curl`, `unzip`, Node.js/npm, and Python are available as required by that tool.
+
+Plugin data, Mason packages, caches, undo files, and sessions live outside this repository under Neovim's normal data/state directories.

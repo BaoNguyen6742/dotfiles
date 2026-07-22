@@ -5,22 +5,38 @@ script_dir="$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 repo_dir="$(CDPATH= cd -- "$script_dir/.." && pwd)"
 target="${STOW_SYSTEM_TARGET:-/}"
 
-if ! command -v stow >/dev/null 2>&1; then
-    echo "GNU Stow is required but was not found in PATH." >&2
-    exit 1
-fi
-
-if [[ $# -eq 0 ]]; then
-    cat >&2 <<EOF
+usage() {
+    cat <<EOF
 Usage: sudo $0 [stow options] PACKAGE...
+
+Creates system-level links from:
+  $repo_dir/system-packages
+into:
+  $target
 
 Examples:
   sudo $0 --simulate --verbose sddm
   sudo $0 --verbose sddm
   sudo $0 --restow sddm
   sudo $0 --delete sddm
+
+See docs/sddm.md before installing or activating SDDM.
 EOF
+}
+
+if [[ ${1:-} == -h || ${1:-} == --help ]]; then
+    usage
+    exit 0
+fi
+
+if [[ $# -eq 0 ]]; then
+    usage >&2
     exit 2
+fi
+
+if ! command -v stow >/dev/null 2>&1; then
+    echo "GNU Stow is required but was not found in PATH." >&2
+    exit 1
 fi
 
 if [[ "$target" == / && EUID -ne 0 ]]; then

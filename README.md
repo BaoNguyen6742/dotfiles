@@ -21,7 +21,7 @@ Configuration shared between Arch Linux, WSL, and Windows. Unix-like systems use
 | `assets` | `~/Documents/Pic/` | Images used by Hyprlock, Swaylock, and WezTerm |
 | `pi` | `~/.pi/agent/` | Arch Linux or WSL |
 
-Do not install `fish-linux` and `fish-wsl` together; they manage the same destination.
+Do not install `fish-linux` and `fish-wsl` together; they manage the same destination. See [`docs/packages.md`](docs/packages.md) for per-package dependencies, machine-specific settings, and verification commands.
 
 ## Install on Arch Linux
 
@@ -97,12 +97,13 @@ Install `assets` alongside those packages. Its `face.png` is an optimized 512×5
 
 ## Install the SDDM system configuration
 
-SDDM is managed separately because its configuration lives under `/etc` and `/usr/local`, outside your home directory. The `sddm` system package installs a self-contained `sugar-candy-dotfiles` theme without modifying the package-owned theme under `/usr/share`.
+SDDM is managed separately because its configuration lives under `/etc` and `/usr/local`, outside your home directory. The `sddm` system package installs a self-contained `sugar-candy-dotfiles` theme without modifying the package-owned theme under `/usr/share`. Read the complete [`docs/sddm.md`](docs/sddm.md) installation and recovery guide before activating it.
 
 Install the required tools:
 
 ```bash
-sudo pacman -S --needed sddm stow acl
+sudo pacman -S --needed \
+  sddm stow acl qt6-5compat qt6-declarative qt6-svg
 ```
 
 If the repository is below a private mode-`0700` home directory, allow only the `sddm` user to traverse the home directory and read the linked theme:
@@ -233,7 +234,7 @@ The optional CPU wattage helper requires privilege escalation and can be install
 ./scripts/ags/setup.sh --install-rapl-helper
 ```
 
-Files edited through `~/.config/ags` are symlinks into this repository, so changes appear directly in `git diff`; no capture step is needed. See [`docs/ags.md`](docs/ags.md) for dependencies, Hyprland startup, and usage.
+Files edited through `~/.config/ags` are symlinks into this repository, so changes appear directly in `git diff`; no capture step is needed. See [`docs/ags.md`](docs/ags.md) for AGS internals and [`docs/packages.md`](docs/packages.md) for the wider desktop package requirements.
 
 ## Repository layout
 
