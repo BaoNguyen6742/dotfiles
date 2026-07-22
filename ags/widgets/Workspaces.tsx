@@ -47,6 +47,7 @@ export function Workspaces() {
       <For each={shown}>
         {(workspace) => (
           <button
+            focusOnClick={false}
             class={focused((active) =>
               active?.id === workspace.id ? "workspace active" : "workspace",
             )}

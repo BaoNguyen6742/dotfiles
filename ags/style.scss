@@ -333,4 +333,48 @@ popover > contents {
 .upload-metric .metric-plot { color: $green; }
 
 
-calendar { padding: 6px; }
+.calendar-panel {
+  min-width: 300px;
+}
+
+.calendar-header {
+  margin: 2px 0 4px;
+}
+
+.calendar-header > label {
+  font-weight: 800;
+}
+
+.calendar-header button {
+  min-width: 30px;
+  padding: 3px;
+}
+
+.calendar-weekdays label {
+  color: $muted;
+  font-weight: 800;
+  padding: 4px 2px;
+}
+
+.calendar-grid button.calendar-day {
+  min-width: 34px;
+  min-height: 30px;
+  background: transparent;
+  border-color: transparent;
+  padding: 3px;
+}
+
+.calendar-grid button.calendar-day.today {
+  color: $green;
+  border-color: $green;
+}
+
+.calendar-grid button.calendar-day.selected {
+  background: rgba(137, 221, 255, 0.17);
+  border-color: $cyan;
+  color: $cyan;
+}
+
+.calendar-grid button.calendar-day.empty {
+  opacity: 0;
+}
