@@ -165,7 +165,8 @@ wezterm --config-file ~/.config/wezterm/wezterm.lua show-keys --lua >/dev/null
 ### `assets`
 
 - **Destination:** `~/Documents/Pic`
-- **Contains:** backgrounds used by Hyprlock, Swaylock, WezTerm, and SDDM, plus an optimized 512×512 lock-screen avatar
+- **Contains:** backgrounds used by Hyprlock, Swaylock, WezTerm, and SDDM, plus the optimized 512×512 `face-lock.png` avatar
+- **Safety:** `face-lock.png` uses a distinct filename so an existing full-resolution `~/Documents/Pic/face.png` is never managed or replaced.
 - **Note:** these are ordinary Git-tracked image files; installing the package only creates symlinks.
 
 ### `pi`

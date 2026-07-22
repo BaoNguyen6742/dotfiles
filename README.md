@@ -90,10 +90,10 @@ The `assets` package installs the images required by Hyprlock, Swaylock, and Wez
 ```text
 ~/Documents/Pic/bg_2B_sddm.png
 ~/Documents/Pic/bg_2B.png
-~/Documents/Pic/face.png
+~/Documents/Pic/face-lock.png
 ```
 
-Install `assets` alongside those packages. Its `face.png` is an optimized 512×512 copy for the lock screen; the original full-resolution image is not tracked. Install the Material GTK theme separately if using the `desktop` package. Theme assets under `~/.themes` are intentionally not tracked.
+Install `assets` alongside those packages. Its `face-lock.png` is an optimized 512×512 lock-screen image with a distinct filename, so an existing full-resolution `face.png` remains untouched. Install the Material GTK theme separately if using the `desktop` package. Theme assets under `~/.themes` are intentionally not tracked.
 
 ## Install the SDDM system configuration
 
