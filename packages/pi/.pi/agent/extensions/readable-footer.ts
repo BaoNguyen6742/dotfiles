@@ -1,6 +1,6 @@
 import type { AssistantMessage } from "@earendil-works/pi-ai";
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
-import { truncateToWidth } from "@earendil-works/pi-tui";
+import { truncateToWidth, visibleWidth } from "@earendil-works/pi-tui";
 
 function formatTokens(value: number): string {
 	if (value >= 1_000_000) {
@@ -51,6 +51,12 @@ function installFooter(ctx: ExtensionContext, pi: ExtensionAPI): void {
 				const branch = footerData.getGitBranch();
 
 				const separator = theme.fg("dim", "  │  ");
+				const headingLabels = ["◆ TOKENS", "◇ SESSION", "⌂ DIRECTORY"];
+				const headingWidth = Math.max(...headingLabels.map(visibleWidth));
+				const formatHeading = (label: string): string => theme.fg(
+					"accent",
+					theme.bold(label + " ".repeat(headingWidth - visibleWidth(label))),
+				);
 				const cacheHitColor: "muted" | "success" | "warning" | "error" = latestCacheHit === undefined
 					? "muted"
 					: latestCacheHit >= 90
@@ -67,7 +73,7 @@ function installFooter(ctx: ExtensionContext, pi: ExtensionAPI): void {
 							: "success";
 
 				const tokenLine = [
-					theme.fg("accent", theme.bold("◆ TOKENS")),
+					formatHeading("◆ TOKENS"),
 					`${theme.fg("muted", "⇧ INPUT")} ${theme.fg("text", formatTokens(input))}`,
 					`${theme.fg("muted", "⇩ OUTPUT")} ${theme.fg("text", formatTokens(output))}`,
 					`${theme.fg("muted", "↻ CACHE")} ${theme.fg("text", formatTokens(cacheRead))}`,
@@ -91,16 +97,21 @@ function installFooter(ctx: ExtensionContext, pi: ExtensionAPI): void {
 					`${theme.fg("muted", "✦ THINKING")} ${theme.fg(thinkingColor, thinkingLevel.toUpperCase())}`,
 				].join("  ");
 				const contextLine = [
-					theme.fg("accent", theme.bold("◇ SESSION")),
+					formatHeading("◇ SESSION"),
 					`${theme.fg("muted", "▣ CONTEXT")} ${theme.fg(contextColor, contextText)}`,
 					modelAndThinking,
 					`${theme.fg("muted", "◆ COST")} ${theme.fg("warning", costText)}`,
+				].join(separator);
+				const directoryLine = [
+					formatHeading("⌂ DIRECTORY"),
+					theme.fg("text", ctx.cwd),
 					branch ? `${theme.fg("muted", "⑂ BRANCH")} ${theme.fg("success", branch)}` : undefined,
 				].filter((part): part is string => Boolean(part)).join(separator);
 
 				return [
 					truncateToWidth(tokenLine, width),
 					truncateToWidth(contextLine, width),
+					truncateToWidth(directoryLine, width),
 				];
 			},
 		};
