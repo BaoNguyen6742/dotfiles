@@ -1,15 +1,15 @@
 # Pi subagent artifacts
 .pi-subagents/
 
-# Never commit Pi credentials or runtime state if copied into this repository.
-pi/auth.json
-pi/models.json
-pi/trust.json
-pi/sessions/
-pi/npm/
-pi/git/
-pi/bin/
-pi/ayu/
-pi/profiles/
-pi/.extmgr-cache/
-pi/**/*.bak-*
+# Never commit Pi credentials or runtime state if they appear in the package.
+packages/pi/.pi/agent/auth.json
+packages/pi/.pi/agent/models.json
+packages/pi/.pi/agent/trust.json
+packages/pi/.pi/agent/sessions/
+packages/pi/.pi/agent/npm/
+packages/pi/.pi/agent/git/
+packages/pi/.pi/agent/bin/
+packages/pi/.pi/agent/ayu/
+packages/pi/.pi/agent/profiles/
+packages/pi/.pi/agent/.extmgr-cache/
+packages/pi/.pi/agent/**/*.bak-*

@@ -1,0 +1,191 @@
+* {
+  border: none;
+  font-family: "JetBrainsMono Nerd Font", "Font Awesome 6 Free", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  font-weight: bold;
+  min-height: 0;
+}
+
+window#waybar {
+  background-color: #0F111A;
+  color: #FFFFFF;
+  border-bottom: 2px solid #89DDFF;
+}
+
+/* --- WORKSPACES --- */
+#workspaces button {
+  padding: 0 7px;
+  margin: 0;
+  color: #546E7A;
+}
+#workspaces button.active {
+  color: #89DDFF;
+  border-bottom: 2px solid #89DDFF;
+}
+#workspaces button.urgent {
+  color: #FF5370;
+}
+/* Add this new block */
+#workspaces {
+  background-color: #1A1C25;
+  border: 1px solid #000000;
+  border-radius: 4px;
+  margin: 4px 0 4px 10px; /* 10px Left margin separates it from the Clock */
+  padding: 0 5px;
+}
+
+/* --- MODULES COMMON STYLING --- */
+#clock,
+#battery,
+#cpu,
+#memory,
+#network,
+#custom-netspeed,
+#pulseaudio,
+#custom-gpu-usage,
+#custom-gpu-vram,
+#custom-gpu-power,
+#custom-brightness,
+#custom-nightlight,  /* <--- Add this */
+#power-profiles-daemon {
+  padding: 0 12px; /* Horizontal padding inside the box */
+  background-color: #1A1C25;
+  border-radius: 4px;
+  border: 1px solid #000000;
+  margin: 4px 3px;
+}
+
+/* --- COLLAPSIBLE TRAY --- */
+
+/* 1. The Container (The Drawer) */
+#group-tray-drawer {
+  background-color: #1A1C25;
+  border: 1px solid #000000;
+  border-radius: 4px;
+  margin: 4px 3px;
+  padding: 0 5px;
+
+}
+
+/* 2. The Arrow Button (Always Visible) */
+#custom-tray-icon {
+  color: #89DDFF; /* Cyan Accent */
+  padding: 0 7px;
+  font-size: 14px;
+}
+
+/* 3. The Actual Tray (Hidden by default) */
+#tray {
+  /* Remove the old borders/backgrounds because the Group handles it now */
+  background-color: transparent;
+  border: none;
+  margin: 0;
+  padding: 0 5px;
+}
+#custom-nightlight {
+    color: #546E7A; /* Default Grey (Off) */
+    background: transparent;
+    border: none;
+    margin: 0;
+    padding: 0 9px;
+}
+
+#custom-nightlight.active {
+    color: #F78C6C; /* Material Ocean Orange (On) */
+}
+
+/* --- POWER BUTTON --- */
+#custom-power {
+  background-color: #FF5370;
+  color: #FFFFFF;
+  /* The power glyph has a right-heavy visual bearing; offset it optically. */
+  padding-left: 9px;
+  padding-right: 15px;
+  min-width: 0;
+  border-radius: 4px;
+  margin: 4px 4px 4px 0;
+}
+
+/* --- SPECIFIC COLORS (Material Ocean) --- */
+
+#clock { color: #C3E88D; } /* Green */
+
+#network.status {
+  color: #89DDFF;
+  padding-left: 12px;
+  padding-right: 12px;
+} /* Cyan */
+#pulseaudio { color: #F78C6C; } /* Orange */
+
+ /* Network Speed Box */
+#custom-netspeed {
+    color: #89DDFF; /* Cyan */
+    font-family: "JetBrainsMono Nerd Font";
+    min-width: 220px; /* Reserve space so text doesn't jump */
+}
+
+#custom-brightness {
+  color: #FFCB6B; /* Yellow */
+}
+#cpu { color: #FFCB6B; } /* Yellow */
+#memory { color: #C792EA; } /* Purple */
+#custom-gpu-usage {
+  padding: 0 12px;
+  background-color: #1A1C25;
+  border-radius: 4px;
+  border: 1px solid #000000;
+  margin: 4px 3px;
+
+  color: #82AAFF; /* Material Ocean Blue */
+}
+
+#custom-gpu-vram {
+  padding: 0 12px;
+  background-color: #1A1C25;
+  border-radius: 4px;
+  border: 1px solid #000000;
+  margin: 4px 3px;
+
+  color: #89DDFF; /* Material Ocean Cyan */
+}
+#custom-gpu-power {
+  padding: 0 12px;
+  background-color: #1A1C25;
+  border-radius: 4px;
+  border: 1px solid #000000;
+  margin: 4px 3px;
+
+  color: #C792EA; /* Material Ocean Cyan */
+}
+
+
+#power-profiles-daemon {
+    color: #82AAFF; /* Default Blue */
+    margin-right: 12px;
+}
+
+#power-profiles-daemon.performance {
+    color: #FF5370; /* Red */
+}
+
+#power-profiles-daemon.balanced {
+    color: #82AAFF; /* Blue */
+}
+
+#power-profiles-daemon.power-saver {
+    color: #C3E88D; /* Green */
+}
+
+
+
+#battery { color: #C3E88D; }
+#battery.charging { color: #FFFFFF; background-color: #263238; }
+#battery.critical:not(.charging) {
+  background-color: #FF5370;
+  color: #FFFFFF;
+  animation: blink 0.5s linear infinite alternate;
+}
+
+@keyframes blink {
+  to { background-color: #ffffff; color: #000000; }
+}

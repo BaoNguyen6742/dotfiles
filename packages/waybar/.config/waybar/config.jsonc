@@ -1,0 +1,190 @@
+{
+  "layer": "top",
+  "position": "top",
+  "height": 40,  // Stays at 40px as requested
+  "spacing": 4,
+  "margin-top": 0,
+  "margin-bottom": 0,
+
+  // --- LEFT: Shutdown -> Datetime ---
+  "modules-left": [
+    "custom/power",
+    "clock",
+    "hyprland/workspaces"
+  ],
+
+  // --- CENTER: Workspaces ---
+  "modules-center": [
+  ],
+
+  // --- RIGHT: Internet -> BT -> Audio -> Speed -> CPU -> RAM -> GPU -> Battery -> Tray ---
+  "modules-right": [
+    "group/tray-drawer",
+    "network#status",
+    "pulseaudio",
+    "custom/brightness",
+    "custom/netspeed",
+    "cpu",
+    "memory",
+    "custom/gpu-usage", // New: Core Load
+    "custom/gpu-vram",
+    "custom/gpu-power",
+    "power-profiles-daemon" // <--- Add this
+  ],
+  // --- CONFIGURATION ---
+
+  "hyprland/workspaces": {
+    "disable-scroll": true,
+    "all-outputs": true,
+    "format": "{icon}",
+    "format-icons": {
+      "1": "1",
+      "2": "2",
+      "3": "3",
+      "4": "4",
+      "5": "5",
+      "6": "6",
+      "7": "7",
+      "8": "8",
+      "9": "9",
+      "10": "10",
+      "urgent": "",
+      "focused": "",
+      "default": ""
+    }
+  },
+
+  "custom/power": {
+    "format": "<span rise='1000'></span>",
+    "tooltip": false,
+    "on-click": "wlogout --protocol layer-shell"
+  },
+
+  "clock": {
+    // %I=12h format, %M=Minute, %S=Second, %p=AM/PM
+    "format": "{:%I:%M:%S %p  |  %Y-%m-%d}",
+    "interval": 1, // Update every second
+    "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>"
+  },
+
+  // 1. Internet Status (Icon + Name)
+  "network#status": {
+    "format-wifi": "󰖩  {essid}",
+    "format-ethernet": "󰈀  Ethernet",
+    "format-disconnected": "<span font='JetBrainsMono Nerd Font'>󰖪 </span> Disconnected",
+    "tooltip-format": "{ifname}: {ipaddr}",
+    "on-click": "nm-connection-editor",
+    // "max-length": 30
+  },
+
+
+  "pulseaudio": {
+    "format": "{volume}% {icon}",
+    "format-bluetooth": "{volume}% {icon}",
+    "format-muted": " Muted",
+    "format-icons": {
+      "headphone": "",
+      "default": ["", ""]
+    },
+    "scroll-step": 1,
+    "on-click": "pavucontrol-qt",
+    "on-click-right": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle", // The toggle!
+    "on-click-middle": "~/.config/waybar/scripts/audio_switcher.sh", // The toggle!
+  },
+  "custom/brightness": {
+    "exec": "~/.config/waybar/scripts/change_brightness.sh",
+    "format": "󰃠 {}",
+    "on-scroll-up": "~/.config/waybar/scripts/change_brightness.sh up",
+    "on-scroll-down": "~/.config/waybar/scripts/change_brightness.sh down",
+    "interval": 1,
+    "tooltip": false
+  },
+  "custom/netspeed": {
+    "exec": "~/.config/waybar/scripts/net_speed.sh",
+    "format": "   {}",
+    "interval": 2,   // Updates exactly every 10 seconds
+    "tooltip": false,
+    // "max-length": 50
+  },
+  "cpu": {
+    "format": "{usage}% ",
+    "tooltip": false
+  },
+
+  "memory": {
+    "format": "{}% "
+  },
+
+  "custom/gpu-usage": {
+    "exec": "~/.config/waybar/scripts/gpu.sh usage",
+    "return-type": "json",
+    "format": "󰢮 {}",
+    "interval": 2,
+    "tooltip": true
+  },
+  "custom/gpu-vram": {
+    "exec": "~/.config/waybar/scripts/gpu.sh vram",
+    "return-type": "json",
+    "format": "󰍛 {}",
+    "interval": 2,
+    "tooltip": true
+  },
+  "custom/gpu-power": {
+    "exec": "~/.config/waybar/scripts/gpu.sh power",
+    "return-type": "json",
+    "format": " {}",
+    "interval": 2,
+    "tooltip": true
+  },
+
+  "power-profiles-daemon": {
+    "format": "{icon}",
+    "tooltip-format": "Power Profile: {profile}\nDriver: {driver}",
+    "tooltip": true,
+    "format-icons": {
+      "default": "",
+      "performance": " ",
+      "balanced": "",
+      "power-saver": ""
+    }
+  },
+
+
+  "group/tray-drawer": {
+    "orientation": "horizontal",
+    "modules": [
+      "custom/tray-icon", // The "Button" you see always
+      "custom/nightlight", // <--- Add this here
+      "tray"              // The content that hides
+    ],
+    "drawer": {
+      "transition-duration": 500,
+      "children-class": "tray-child",
+      "transition-left-to-right": false,
+      "click-to-reveal": true
+    }
+  },
+
+  "custom/tray-icon": {
+    "format": "",
+    "tooltip": false
+  },
+  "custom/nightlight": {
+    "exec": "~/.config/waybar/scripts/nightlight.sh",
+    "return-type": "json",
+    "interval": 2,
+    "format": "{icon}",
+    "format-icons": {
+      "on": "󰽢",
+      "off": "󰖨"
+    },
+    "on-click": "~/.config/waybar/scripts/nightlight.sh toggle",
+    "on-scroll-up": "~/.config/waybar/scripts/nightlight.sh up",
+    "on-scroll-down": "~/.config/waybar/scripts/nightlight.sh down"
+  },
+  // Your existing tray config stays the same
+  "tray": {
+    "icon-size": 22,
+    "spacing": 16
+  },
+}

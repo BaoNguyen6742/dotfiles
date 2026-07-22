@@ -1,0 +1,7 @@
+require("hypr_lua.Startup_and_Shutdown.core")
+require("hypr_lua.Appearance.core")
+require("hypr_lua.Environment_var.core")
+require("hypr_lua.IO.core")
+require("hypr_lua.Window_and_Workspace.core")
+require("hypr_lua.Functionality.core")
+require("hypr_lua.Bind.core")

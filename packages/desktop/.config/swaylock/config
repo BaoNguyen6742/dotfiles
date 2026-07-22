@@ -1,0 +1,52 @@
+# --- BEHAVIOR ---
+ignore-empty-password
+show-failed-attempts
+daemonize
+
+# --- BACKGROUND ---
+image=$HOME/Pic/bg_2B.png
+color=0F111A
+
+# --- POSITIONING ---
+# Removing these lines puts it back in the DEAD CENTER
+# indicator-x-position=200
+# indicator-y-position=950
+
+# --- CLOCK & DATE ---
+clock
+# Keep this short format so it fits in the circle!
+datestr=%a, %b %d %Y
+timestr=%H:%M
+
+font=JetBrainsMono Nerd Font
+font-size=45
+text-color=FFFFFF
+
+# --- THE RING ---
+indicator
+indicator-idle-visible
+indicator-radius=120
+indicator-thickness=10
+line-uses-inside
+
+# --- COLORS (Material Ocean) ---
+inside-color=0F111A
+ring-color=89DDFF
+line-color=0F111A
+
+key-hl-color=82AAFF
+bs-hl-color=FF5370
+
+verify-text=...
+wrong-text=Wrong
+inside-ver-color=0F111A
+ring-ver-color=82AAFF
+text-ver-color=82AAFF
+inside-wrong-color=0F111A
+ring-wrong-color=FF5370
+text-wrong-color=FF5370
+inside-clear-color=0F111A
+ring-clear-color=FFCB6B
+text-clear-color=FFCB6B
+
+separator-color=00000000

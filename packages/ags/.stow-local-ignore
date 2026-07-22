@@ -1,0 +1,3 @@
+# Override Stow's defaults so .config/ags/.gitignore is installed.
+# Keep generated AGS content local even if it appears in the package tree.
+^/\.config/ags/(node_modules|@girs)(/.*)?$

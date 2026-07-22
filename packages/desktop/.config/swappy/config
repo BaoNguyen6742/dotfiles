@@ -1,0 +1,10 @@
+[Default]
+# Change this to your desired folder
+save_dir=$HOME/Pictures/Screenshots
+
+# Optional: Custom filename format
+save_filename_format=screenshot-%Y%m%d-%H%M%S.png
+
+# Optional: Start with the line tool selected instead of the brush
+early_exit=false
+fill_shape=false

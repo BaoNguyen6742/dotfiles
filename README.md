@@ -1,51 +1,208 @@
 # Dotfiles
 
-Configuration shared between Windows, WSL, and Arch Linux.
+Configuration shared between Arch Linux, WSL, and Windows. Unix-like systems use [GNU Stow](https://www.gnu.org/software/stow/) to create symlinks from `$HOME` into this repository.
 
-## Installation
+## Available packages
 
-Shell configuration folders contain their own installer. When a folder has platform subdirectories, pass the platform name:
+| Package | Destination | Use on |
+|---|---|---|
+| `bash` | `~/.bash_aliases` | Arch Linux or WSL |
+| `fish-linux` | `~/.config/fish/config.fish` | Arch Linux |
+| `fish-wsl` | `~/.config/fish/config.fish` | WSL |
+| `ags` | `~/.config/ags/` | Arch Linux with Hyprland |
+| `hypr` | `~/.config/hypr/` | Arch Linux with Hyprland |
+| `nvim` | `~/.config/nvim/` | Arch Linux or WSL |
+| `wezterm` | `~/.config/wezterm/` | Arch Linux |
+| `dunst` | `~/.config/dunst/` | Arch Linux |
+| `rofi` | `~/.config/rofi/` | Arch Linux |
+| `btop` | `~/.config/btop/` | Arch Linux or WSL |
+| `waybar` | `~/.config/waybar/` | Arch Linux; fallback for AGS |
+| `desktop` | GTK, Qt, Swappy, Swaylock, and MIME defaults | Arch Linux |
+| `pi` | `~/.pi/agent/` | Arch Linux or WSL |
 
-```bash
-cd fish
-./install.fish Linux
-```
+Do not install `fish-linux` and `fish-wsl` together; they manage the same destination.
 
-AGS and Pi have installers that back up changed destination files before replacing them.
+## Install on Arch Linux
 
-AGS top bar (Arch/Hyprland):
-
-```bash
-cd ags
-./install.sh --dry-run
-./install.sh --generate-types
-```
-
-To bring edits made directly in `~/.config/ags` back into the repository:
-
-```bash
-cd ags
-./capture.sh --dry-run
-./capture.sh
-git diff -- .
-```
-
-Commit and push the reviewed changes, then run `./install.sh` after pulling them on another machine.
-
-See [`ags/README.md`](ags/README.md) for system dependencies, Hyprland startup, and optional hardware integration.
-
-Pi on Arch/Linux:
+### 1. Install Git and GNU Stow
 
 ```bash
-cd pi
-./install.sh
+sudo pacman -S --needed git stow
 ```
 
-Windows PowerShell:
+### 2. Clone the repository
+
+```bash
+git clone https://github.com/BaoNguyen6742/dotfiles.git ~/.dotfiles
+cd ~/.dotfiles
+```
+
+### 3. Preview the installation
+
+For the complete Arch setup:
+
+```bash
+./scripts/stow.sh --simulate --verbose \
+  bash fish-linux ags hypr nvim wezterm dunst rofi btop waybar desktop pi
+```
+
+The preview does not modify your home directory. If Stow reports a conflict, back up or remove the existing destination and run the preview again. For example:
+
+```bash
+mv ~/.bash_aliases ~/.bash_aliases.pre-stow
+```
+
+Handle each reported path individually. Do not use `stow --adopt` unless you intend to replace the repository version with the existing local file and will review the resulting Git diff.
+
+### 4. Create the symlinks
+
+```bash
+./scripts/stow.sh --verbose \
+  bash fish-linux ags hypr nvim wezterm dunst rofi btop waybar desktop pi
+```
+
+You can install only selected packages by listing fewer names. For example:
+
+```bash
+./scripts/stow.sh --verbose bash fish-linux
+```
+
+### 5. Finish setup
+
+Reload the installed shell configuration:
+
+```bash
+source ~/.bash_aliases  # when using Bash
+exec fish               # when using Fish
+```
+
+If you installed AGS, generate its local Astal TypeScript definitions:
+
+```bash
+./scripts/ags/setup.sh --generate-types
+```
+
+Restart Pi after installing the `pi` package, then authenticate with `/login` if needed.
+
+The Hyprlock, Swaylock, and WezTerm appearance settings reference these personal image files, which are not stored in this repository:
+
+```text
+~/Documents/Pic/bg_2B_sddm.png
+~/Documents/Pic/bg_2B.png
+~/Documents/Pic/face.png
+~/Pic/bg_2B.png
+```
+
+Install the Material GTK theme separately if using the `desktop` package. Theme assets under `~/.themes` are intentionally not tracked.
+
+## Install on WSL
+
+### 1. Install Git and GNU Stow
+
+On Ubuntu or Debian-based WSL distributions:
+
+```bash
+sudo apt update
+sudo apt install git stow
+```
+
+### 2. Clone and preview
+
+```bash
+git clone https://github.com/BaoNguyen6742/dotfiles.git ~/.dotfiles
+cd ~/.dotfiles
+./scripts/stow.sh --simulate --verbose bash fish-wsl pi
+```
+
+Back up any conflicting destination files reported by Stow, then install:
+
+```bash
+./scripts/stow.sh --verbose bash fish-wsl pi
+```
+
+Reload your shell with `source ~/.bash_aliases` or `exec fish`. See [`docs/fish-wsl.md`](docs/fish-wsl.md) for the WSL-specific Fish configuration.
+
+## Install Pi configuration on Windows
+
+GNU Stow is not required on Windows. Clone the repository, open PowerShell in it, and run the copy-and-backup installer:
 
 ```powershell
-cd pi
-.\install.ps1
+git clone https://github.com/BaoNguyen6742/dotfiles.git "$HOME\.dotfiles"
+Set-Location "$HOME\.dotfiles"
+
+# Preview without changing files
+.\scripts\pi\install.ps1 -DryRun
+
+# Install
+.\scripts\pi\install.ps1
 ```
 
-See [`pi/README.md`](pi/README.md) for Pi package, extension, and authentication details.
+If PowerShell blocks script execution for the current process:
+
+```powershell
+Set-ExecutionPolicy -Scope Process Bypass
+```
+
+Restart Pi after installation and authenticate with `/login`. See [`docs/pi.md`](docs/pi.md) for details.
+
+## Updating
+
+Pull the latest changes and refresh the links for the packages installed on that machine:
+
+```bash
+cd ~/.dotfiles
+git pull
+./scripts/stow.sh --restow \
+  bash fish-linux ags hypr nvim wezterm dunst rofi btop waybar desktop pi
+```
+
+On WSL, use `fish-wsl` instead of `fish-linux` and omit `ags` unless it is needed.
+
+On Windows, run `git pull` and rerun `scripts/pi/install.ps1`.
+
+## Uninstalling
+
+Remove a package's symlinks without deleting repository files:
+
+```bash
+cd ~/.dotfiles
+./scripts/stow.sh --delete ags
+```
+
+List multiple package names to remove several packages at once.
+
+## AGS notes
+
+The optional CPU wattage helper requires privilege escalation and can be installed separately:
+
+```bash
+./scripts/ags/setup.sh --install-rapl-helper
+```
+
+Files edited through `~/.config/ags` are symlinks into this repository, so changes appear directly in `git diff`; no capture step is needed. See [`docs/ags.md`](docs/ags.md) for dependencies, Hyprland startup, and usage.
+
+## Repository layout
+
+```text
+packages/
+├── bash/
+├── fish-linux/
+├── fish-wsl/
+├── ags/
+├── hypr/
+├── nvim/
+├── wezterm/
+├── dunst/
+├── rofi/
+├── btop/
+├── waybar/
+├── desktop/
+└── pi/
+scripts/
+├── stow.sh
+├── ags/setup.sh
+└── pi/install.ps1
+docs/
+```
+
+The Stow wrapper uses `--no-folding`, ensuring writable directories such as `~/.pi` and generated AGS directories remain outside the repository.
