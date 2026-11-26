@@ -21,9 +21,47 @@ function safeExec(command: string | string[]) {
 
 export function NetworkStatus() {
   const wifi = createBinding(network, "wifi")
+  const wired = createBinding(network, "wired")
 
   return (
-    <box visible={wifi(Boolean)}>
+    <box spacing={5}>
+      <With value={wired}>
+        {(device) => device && (
+          <button
+            class="network"
+            tooltipText={createBinding(device, "internet")((state) =>
+              state === Network.Internet.CONNECTED
+                ? "Ethernet connected · Click for network settings"
+                : state === Network.Internet.CONNECTING
+                  ? "Ethernet connecting"
+                  : "Ethernet disconnected",
+            )}
+            onClicked={() => safeExec("nm-connection-editor")}
+          >
+            <box spacing={7}>
+              <image iconName={createBinding(device, "iconName")} />
+              <label label={createBinding(device, "internet")((state) =>
+                state === Network.Internet.CONNECTED
+                  ? "Ethernet"
+                  : state === Network.Internet.CONNECTING
+                    ? "Connecting…"
+                    : "Offline",
+              )} />
+            </box>
+          </button>
+        )}
+      </With>
+      <button
+        class="network"
+        visible={createComputed(() => !wifi() && !wired())}
+        tooltipText="No network device · Click for network settings"
+        onClicked={() => safeExec("nm-connection-editor")}
+      >
+        <box spacing={7}>
+          <image iconName="network-offline-symbolic" />
+          <label label="Offline" />
+        </box>
+      </button>
       <With value={wifi}>
         {(device) =>
           device && (

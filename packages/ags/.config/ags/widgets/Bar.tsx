@@ -11,7 +11,6 @@ import { ActiveWindow, Workspaces } from "./Workspaces"
 import {
   AudioStatus,
   BatteryStatus,
-  BluetoothStatus,
   BrightnessStatus,
   NetworkStatus,
 } from "./SystemStatus"
@@ -47,7 +46,6 @@ export default function Bar({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) {
         <box class="bar-section right" spacing={5}>
           <StatusDrawer />
           <NetworkStatus />
-          <BluetoothStatus />
           <AudioStatus />
           <BrightnessStatus connector={connector} />
           <SystemMonitor />
