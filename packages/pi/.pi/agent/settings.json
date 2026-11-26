@@ -26,6 +26,7 @@
   },
   "enableSkillCommands": true,
   "showHardwareCursor": false,
+  "fullscreenWheelScrollLines": 8,
   "terminal": {
     "showTerminalProgress": true
   },
