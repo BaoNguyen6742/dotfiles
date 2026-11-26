@@ -1,20 +1,23 @@
 # Neovim configuration
 
-This is a Neovim 0.11+ configuration based on [kickstart.nvim](https://github.com/nvim-lua/kickstart.nvim). It uses `lazy.nvim` for plugins and Mason for language servers and development tools.
+This is a Neovim 0.12+ configuration based on [kickstart.nvim](https://github.com/nvim-lua/kickstart.nvim). It uses `lazy.nvim` for plugins and Mason for language servers and development tools.
 
 ## Requirements
 
 Required:
 
-- Neovim 0.11 or newer
+- Neovim 0.12 or newer for the pinned `nvim-treesitter` `main` revision
+- Tree-sitter CLI 0.26.1 or newer, plus `tar`, `curl`, and a C compiler for parser installs
 - Git
 - A Nerd Font for icons
 
-Recommended system tooling:
+Use your distro's packages if they meet those versions. If they are too old, install a newer Neovim and Tree-sitter CLI or keep an older dotfiles revision. Changing just the plugin branch is not sufficient: the Tree-sitter config uses the `main` API.
+
+Arch tooling example:
 
 ```bash
 sudo pacman -S --needed \
-  base-devel ripgrep fd unzip curl nodejs npm python python-pip
+  base-devel tree-sitter-cli ripgrep fd unzip curl nodejs npm python python-pip
 ```
 
 `make` builds Telescope's native FZF extension. Node.js/npm and Python support tools installed by Mason.
@@ -28,7 +31,9 @@ From the dotfiles repository root:
 ./scripts/stow.sh --verbose nvim
 ```
 
-On first launch, `lazy.nvim` clones itself into Neovim's data directory and installs the configured plugins. Mason then installs the configured tools, including TypeScript, Python, Docker, JSON, YAML, and Lua language servers plus Ruff, StyLua, shfmt, Prettier, and related formatters.
+On first launch, `lazy.nvim` clones itself into Neovim's data directory and installs the configured plugins. Mason then installs the configured tools, including TypeScript, Python, Docker, JSON, YAML, Lua, and Zig language servers plus Ruff, StyLua, shfmt, Prettier, and related formatters.
+
+Markdown rendering uses `render-markdown.nvim` and the `markdown` and `markdown_inline` parsers. ZLS formats Zig and ZON files on save when attached; install a compatible `zig` executable if you use it.
 
 Start Neovim and allow the initial installations to finish:
 
@@ -44,12 +49,14 @@ Inside Neovim, inspect the plugin and tool state:
 :Lazy
 :Mason
 :checkhealth
+:checkhealth nvim-treesitter
 ```
 
 Useful external checks:
 
 ```bash
 nvim --version | head -1
+tree-sitter --version
 rg --version
 make --version | head -1
 ```

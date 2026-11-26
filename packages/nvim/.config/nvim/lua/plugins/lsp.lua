@@ -100,7 +100,7 @@ return {
                         group = vim.api.nvim_create_augroup("kickstart-lsp-detach", { clear = true }),
                         callback = function(event2)
                             vim.lsp.buf.clear_references()
-                            vim.api.nvim_clear_autocmds { group = "kickstart-lsp-highlight", buffer = event2.buf }
+                            vim.api.nvim_clear_autocmds({ group = "kickstart-lsp-highlight", buffer = event2.buf })
                         end,
                     })
                 end
@@ -109,7 +109,7 @@ return {
                 -- code, if the language server you are using supports them
                 if client and client:supports_method(vim.lsp.protocol.Methods.textDocument_inlayHint) then
                     map("<leader>th", function()
-                        vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled { bufnr = event.buf })
+                        vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = event.buf }))
                     end, "[T]oggle Inlay [H]ints")
                 end
             end,
@@ -175,14 +175,35 @@ return {
                     },
                 },
             },
+            zls = {},
         }
+
+        -- Native LSP formatters to run on save, keyed by Neovim filetype.
+        local format_on_save = {
+            zig = "zls", -- Neovim uses the zig filetype for both .zig and .zon.
+        }
+
+        vim.api.nvim_create_autocmd("BufWritePre", {
+            group = vim.api.nvim_create_augroup("LspFormatOnSave", { clear = true }),
+            callback = function(event)
+                local server = format_on_save[vim.bo[event.buf].filetype]
+                if not server then
+                    return
+                end
+
+                local clients = vim.lsp.get_clients({ bufnr = event.buf, name = server, method = "textDocument/formatting" })
+                if clients[1] then
+                    vim.lsp.buf.format({ bufnr = event.buf, id = clients[1].id, async = false })
+                end
+            end,
+        })
 
         -- Ensure the servers and tools above are installed
         local ensure_installed = vim.tbl_keys(servers or {})
         vim.list_extend(ensure_installed, {
             "stylua", -- Used to format Lua code
         })
-        require("mason-tool-installer").setup { ensure_installed = ensure_installed }
+        require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
 
         for server, cfg in pairs(servers) do
             -- For each LSP server (cfg), we merge:
