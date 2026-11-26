@@ -1,7 +1,6 @@
 return {
     "nvimtools/none-ls.nvim",
     dependencies = {
-        "nvimtools/none-ls-extras.nvim",
         "jayp0521/mason-null-ls.nvim", -- ensure dependencies are installed
     },
     config = function()
@@ -14,7 +13,6 @@ return {
             ensure_installed = {
                 "shfmt", -- Shell formatter
                 -- 'stylua', -- lua formatter; Already installed via Mason
-                -- 'ruff', -- Python linter and formatter; Already installed via Mason
             },
             automatic_installation = true,
         }
@@ -24,8 +22,6 @@ return {
             formatting.prettier.with { filetypes = { "html", "json", "yaml", "markdown" } },
             formatting.stylua,
             formatting.shfmt.with { args = { "-i", "4" } },
-            require("none-ls.formatting.ruff").with { extra_args = { "--extend-select", "I" } },
-            require "none-ls.formatting.ruff_format",
         }
 
         local augroup = vim.api.nvim_create_augroup("LspFormatting", {})

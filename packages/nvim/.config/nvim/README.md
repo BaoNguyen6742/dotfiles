@@ -31,7 +31,9 @@ From the dotfiles repository root:
 ./scripts/stow.sh --verbose nvim
 ```
 
-On first launch, `lazy.nvim` clones itself into Neovim's data directory and installs the configured plugins. Mason then installs the configured tools, including TypeScript, Python, Docker, JSON, YAML, Lua, and Zig language servers plus Ruff, StyLua, shfmt, Prettier, and related formatters.
+On first launch, `lazy.nvim` clones itself into Neovim's data directory and installs the configured plugins. Mason then installs the configured tools, including the TypeScript, Docker, JSON, YAML, Lua, and Zig language servers, plus StyLua, shfmt, and Prettier.
+
+For Python, Mason installs ty for type checking and language features, and Ruff for linting, import sorting, and formatting. Ruff sorts imports and formats Python files on save.
 
 Markdown rendering uses `render-markdown.nvim` and the `markdown` and `markdown_inline` parsers. ZLS formats Zig and ZON files on save when attached; install a compatible `zig` executable if you use it.
 

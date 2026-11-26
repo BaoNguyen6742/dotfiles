@@ -129,24 +129,43 @@ return {
         -- - filetypes (table): Override the default list of associated filetypes for the server
         -- - capabilities (table): Override fields in capabilities. Can be used to disable certain LSP features.
         -- - settings (table): Override the default settings passed when initializing the server.
+        local ruff_format_group = vim.api.nvim_create_augroup("RuffFormatOnSave", { clear = true })
         local servers = {
             ts_ls = {},
-            ruff = {},
-            pylsp = {
-                settings = {
-                    pylsp = {
-                        plugins = {
-                            pyflakes = { enabled = false },
-                            pycodestyle = { enabled = false },
-                            autopep8 = { enabled = false },
-                            yapf = { enabled = false },
-                            mccabe = { enabled = false },
-                            pylsp_mypy = { enabled = false },
-                            pylsp_black = { enabled = false },
-                            pylsp_isort = { enabled = false },
-                        },
-                    },
-                },
+            ty = {},
+            ruff = {
+                on_attach = function(client, bufnr)
+                    client.server_capabilities.hoverProvider = false -- Use ty for hover.
+                    vim.api.nvim_clear_autocmds({ group = ruff_format_group, buffer = bufnr })
+                    vim.api.nvim_create_autocmd("BufWritePre", {
+                        group = ruff_format_group,
+                        buffer = bufnr,
+                        desc = "Organize imports and format with Ruff",
+                        callback = function()
+                            if not vim.lsp.buf_is_attached(bufnr, client.id) then
+                                return
+                            end
+
+                            -- The source action sorts the whole buffer; formatting alone doesn't sort imports.
+                            local start = { line = 0, character = 0 }
+                            local response = client:request_sync("textDocument/codeAction", {
+                                textDocument = vim.lsp.util.make_text_document_params(bufnr),
+                                range = { start = start, ["end"] = start },
+                                context = { diagnostics = {}, only = { "source.organizeImports" } },
+                            }, 1000, bufnr)
+                            local action = vim.tbl_get(response or {}, "result", 1)
+                            if action and not action.edit and action.data then
+                                local resolved = client:request_sync("codeAction/resolve", action, 1000, bufnr)
+                                action = resolved and resolved.result
+                            end
+                            if action and action.edit then
+                                vim.lsp.util.apply_workspace_edit(action.edit, client.offset_encoding)
+                            end
+
+                            vim.lsp.buf.format({ bufnr = bufnr, id = client.id })
+                        end,
+                    })
+                end,
             },
             dockerls = {},
             jsonls = {},
