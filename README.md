@@ -1,23 +1,24 @@
 # Dotfiles
 
-Configuration shared between Arch Linux, WSL, and Windows. Unix-like systems use [GNU Stow](https://www.gnu.org/software/stow/) to create symlinks from `$HOME` into this repository.
+Configuration shared between Linux (including Arch Linux and WSL) and Windows. Unix-like systems use [GNU Stow](https://www.gnu.org/software/stow/) to create symlinks from `$HOME` into this repository.
 
 ## Available packages
 
 | Package | Destination | Use on |
 |---|---|---|
-| `bash` | `~/.bash_aliases` | Arch Linux or WSL |
-| `fish-linux` | `~/.config/fish/config.fish` | Arch Linux |
+| `bash` | `~/.bash_aliases` | Linux or WSL |
+| `fish-linux` | `~/.config/fish/config.fish` | Linux |
 | `fish-wsl` | `~/.config/fish/config.fish` | WSL |
 | `ags` | `~/.config/ags/` | Arch Linux with Hyprland |
 | `hypr` | `~/.config/hypr/` | Arch Linux with Hyprland |
-| `nvim` | `~/.config/nvim/` | Arch Linux or WSL |
+| `nvim` | `~/.config/nvim/` | Linux or WSL with Neovim 0.12+ |
 | `wezterm` | `~/.config/wezterm/` | Arch Linux |
 | `dunst` | `~/.config/dunst/` | Arch Linux |
 | `rofi` | `~/.config/rofi/` | Arch Linux |
-| `btop` | `~/.config/btop/` | Arch Linux or WSL |
+| `btop` | `~/.config/btop/` | Linux or WSL |
 | `waybar` | `~/.config/waybar/` | Arch Linux; fallback for AGS |
 | `desktop` | GTK, Qt, Swappy, Swaylock, and MIME defaults | Arch Linux |
+| `gtk-theme` | `~/.local/share/themes/Material-Black-Blueberry-3.38/` | Linux with GTK 2/3 apps |
 | `assets` | `~/Documents/Pic/` | Images used by Hyprlock, Swaylock, and WezTerm |
 | `pi` | `~/.pi/agent/` | Arch Linux or WSL |
 
@@ -44,7 +45,7 @@ For the complete Arch setup:
 
 ```bash
 ./scripts/stow.sh --simulate --verbose \
-  bash fish-linux ags hypr nvim wezterm dunst rofi btop waybar desktop assets pi
+  bash fish-linux ags hypr nvim wezterm dunst rofi btop waybar desktop gtk-theme assets pi
 ```
 
 The preview does not modify your home directory. If Stow reports a conflict, back up or remove the existing destination and run the preview again. For example:
@@ -59,7 +60,7 @@ Handle each reported path individually. Do not use `stow --adopt` unless you int
 
 ```bash
 ./scripts/stow.sh --verbose \
-  bash fish-linux ags hypr nvim wezterm dunst rofi btop waybar desktop assets pi
+  bash fish-linux ags hypr nvim wezterm dunst rofi btop waybar desktop gtk-theme assets pi
 ```
 
 You can install only selected packages by listing fewer names. For example:
@@ -93,7 +94,31 @@ The `assets` package installs the images required by Hyprlock, Swaylock, and Wez
 ~/Documents/Pic/face-lock.png
 ```
 
-Install `assets` alongside those packages. Its `face-lock.png` is an optimized 512×512 lock-screen image with a distinct filename, so an existing full-resolution `face.png` remains untouched. Install the Material GTK theme separately if using the `desktop` package. Theme assets under `~/.themes` are intentionally not tracked.
+Install `assets` alongside those packages. Its `face-lock.png` is an optimized 512×512 lock-screen image with a distinct filename, so an existing full-resolution `face.png` remains untouched. Pair `desktop` with `gtk-theme` for the Material GTK theme. Install the Adwaita icon theme (`adwaita-icon-theme`) and [fonts](docs/packages.md#desktop) separately.
+
+## Install on other Linux distributions
+
+Install Git, GNU Stow, and the apps you want to configure. For example:
+
+```bash
+# Debian / Ubuntu
+sudo apt update
+sudo apt install git stow fish btop
+
+# Fedora
+sudo dnf install git stow fish btop
+```
+
+Clone the repository as above, then preview and install a small set of packages:
+
+```bash
+./scripts/stow.sh --simulate --verbose bash fish-linux btop
+./scripts/stow.sh --verbose bash fish-linux btop
+```
+
+Only run the second command after reviewing the preview and backing up any conflicting files. If your `~/.bashrc` doesn't already source `~/.bash_aliases`, add `[ -r "$HOME/.bash_aliases" ] && . "$HOME/.bash_aliases"` to it.
+
+Add `nvim` separately if you have Neovim 0.12+ and Tree-sitter CLI 0.26.1+. Install desktop packages only if you use the corresponding applications. In particular, the Arch Hyprland and AGS setup is not a generic desktop profile: check app versions, dependencies, and monitor settings in [`docs/packages.md`](docs/packages.md) first.
 
 ## Install the SDDM system configuration
 
@@ -208,7 +233,7 @@ Pull the latest changes and refresh the links for the packages installed on that
 cd ~/.dotfiles
 git pull
 ./scripts/stow.sh --restow \
-  bash fish-linux ags hypr nvim wezterm dunst rofi btop waybar desktop assets pi
+  bash fish-linux ags hypr nvim wezterm dunst rofi btop waybar desktop gtk-theme assets pi
 ```
 
 On WSL, use `fish-wsl` instead of `fish-linux` and omit `ags` unless it is needed.
@@ -252,6 +277,7 @@ packages/
 ├── btop/
 ├── waybar/
 ├── desktop/
+├── gtk-theme/
 ├── assets/
 └── pi/
 system-packages/

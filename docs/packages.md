@@ -44,23 +44,31 @@ The output should point into this repository. The wrapper uses `--no-folding`, s
 - **Core requirements:** Hyprland, Hypridle, Hyprlock, Hyprpaper, and `hyprpolkitagent`
 - **Commands used by bindings/startup:** `wezterm`, `thunar`, `rofi`, `dunst`, `wl-paste`, `wl-copy`, `cliphist`, `grim`, `slurp`, `swappy`, `wpctl`, `brightnessctl`, `playerctl`, `fcitx5`, `nm-applet`, `jq`, and `systemctl`
 - **Related packages:** install `ags`, `assets`, `dunst`, `rofi`, `wezterm`, and `desktop` for the complete setup.
+- **Night-light shaders:** shared by AGS and Waybar under `~/.config/hypr/shaders/`. Both bars fall back to `~/.config/hypr/hypr_conf/shaders/` if a preset is missing from the new location.
+
+For an existing Stow install, preview the new shader links with `./scripts/stow.sh --simulate --restow hypr ags` (use `waybar` instead of `ags` if applicable). Compare and back up any conflicting files before removing `--simulate`. Stow may leave dangling links in the old shader directory; leave any real files alone and remove only obsolete links that pointed into this repository.
 
 Important machine-specific settings:
 
-- `hypr_conf/IO/core.conf` contains three exact monitor descriptions, modes, positions, and scales.
-- `hypr_conf/Startup_and_Shutdown/core.conf` assigns workspaces to those same monitor descriptions.
-- `mouse:276` is a hardware-specific side-button binding.
-- The configuration expects the custom `UDEV Gothic 35NFLG` font. Install it separately or replace it with an available font.
+- The Lua monitor layout lives in `hypr_lua/IO/monitors.lua`. List the displays left to right with their output selectors, explicit modes, and numeric scales. The config calculates positions from that order and the scaled widths. The optional `workspace` field sets that monitor's default workspace; `primary = true` anchors the layout at `0x0` and focuses that display at startup if connected. Unlisted displays use automatic mode, placement, and scaling. Use `return {}` for automatic settings on every display.
+- If using the legacy Hyprlang entry point instead, adjust `hypr_conf/IO/core.conf` and `hypr_conf/Startup_and_Shutdown/core.conf`. The AGS workspace and night-light controls expect the Lua `hyprctl eval` API; use Waybar or adapt those controls on legacy Hyprland.
+- `mouse:276` is a hardware-specific side-button binding. Review keyboard layout and pointer settings for the target machine.
+- On non-Arch distros, check `XDG_MENU_PREFIX` in the environment module if Rofi's app menu is incomplete. Change or disable startup commands for services and apps you don't install, especially on non-systemd systems.
+- The configuration expects the custom `UDEV Gothic 35NFLG` font. Install it separately or replace it with an available font. Install `assets` and the JetBrainsMono Nerd Font for Hyprlock.
 
-Before using this package on another machine, inspect the connected monitors and update both monitor-related files:
+To see monitor descriptions and supported modes on the target machine:
 
 ```bash
 hyprctl monitors all
 ```
 
-Verify the configuration syntax:
+Verify the configuration syntax using the entry point for your Hyprland version:
 
 ```bash
+# Lua configuration (verified with Hyprland 0.57 git on the source machine)
+Hyprland --verify-config -c ~/.config/hypr/hyprland.lua
+
+# On older releases that use Hyprlang instead of Lua
 Hyprland --verify-config -c ~/.config/hypr/hyprland.conf
 ```
 
@@ -108,7 +116,7 @@ Run individual helpers when troubleshooting:
 ### `rofi`
 
 - **Destination:** `~/.config/rofi/config.rasi`
-- **Requires:** Rofi and `/usr/share/rofi/themes/material.rasi`, supplied by the Arch `rofi` package
+- **Requires:** Rofi and a `material.rasi` theme in Rofi's theme search path. Arch's `rofi` package ships this theme; if your distro doesn't, place it in `~/.local/share/rofi/themes/` or select another installed theme.
 - **Verify:** `rofi -show drun`
 
 ### `desktop`
@@ -116,8 +124,8 @@ Run individual helpers when troubleshooting:
 This package manages GTK 3/4, Qt 5/6, Swappy, Swaylock, and MIME defaults.
 
 - **Required applications:** `swappy`, `swaylock`, `qt5ct`, and `qt6ct` as applicable
-- **Theme:** `Material-Black-Blueberry-3.38`, supplied on this machine by `material-black-colors-theme`
-- **Icons:** Adwaita icon theme
+- **Theme:** install the `gtk-theme` package below for `Material-Black-Blueberry-3.38`.
+- **Icons:** install the separate `adwaita-icon-theme` package. The Material theme's artwork does not include the Adwaita icon set.
 - **Fonts:** `UDEV Gothic 35NFLG` and `JetBrainsMono Nerd Font`
 - **Assets:** install the `assets` package for the Swaylock background.
 - **Portability:** `mimeapps.list` names applications installed on the source machine; unavailable handlers are harmless but should be reviewed on a new system.
@@ -131,6 +139,20 @@ qt6ct
 swappy --help
 swaylock --help
 ```
+
+### `gtk-theme`
+
+- **Destination:** `~/.local/share/themes/Material-Black-Blueberry-3.38/`
+- **Contains:** the upstream Material Black Blueberry theme, including its GTK 2/3 styles and theme artwork. It does not include a GTK 4 stylesheet, the Adwaita icon set, or any fonts. AGS uses Adwaita plus its own tracked stylesheet.
+- **Source and license:** copied unchanged from Arch's `material-black-colors-theme` package (`1-1`), which lists [ArchBang Retro on SourceForge](https://sourceforge.net/projects/archbangretro/) as its upstream. See [`COPYING`](../packages/gtk-theme/.local/share/themes/Material-Black-Blueberry-3.38/COPYING) and the retained upstream notices.
+
+To sync the look on another Linux machine, install your distro's `adwaita-icon-theme` package and the fonts above, then preview the Stow links:
+
+```bash
+./scripts/stow.sh --simulate --verbose desktop gtk-theme assets
+```
+
+If the preview is clean, rerun without `--simulate` and restart GTK apps. If your desktop's appearance settings override `settings.ini`, select `Material-Black-Blueberry-3.38` there as well. Stow installs the theme for your user only; it does not replace a system theme or change GDM or SDDM.
 
 ## Terminal and editor packages
 
@@ -148,8 +170,8 @@ wezterm --config-file ~/.config/wezterm/wezterm.lua show-keys --lua >/dev/null
 ### `nvim`
 
 - **Destination:** `~/.config/nvim`
-- **Requires:** Neovim 0.11 or newer and Git
-- **Recommended tooling:** `base-devel`, `make`, `ripgrep`, `fd`, `unzip`, `curl`, Node.js/npm, and Python/pip
+- **Requires:** Neovim 0.12+, Tree-sitter CLI 0.26.1+, Git, `curl`, `tar`, and a C compiler
+- **Recommended tooling:** `make`, `ripgrep`, `fd`, `unzip`, Node.js/npm, and Python/pip. Install Zig separately if using ZLS for Zig development.
 - **Managed automatically:** `lazy.nvim` installs plugins; Mason installs configured language servers, formatters, and linters.
 - **Documentation:** see the [Neovim package README](../packages/nvim/.config/nvim/README.md).
 

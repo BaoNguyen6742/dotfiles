@@ -4,7 +4,8 @@ This is a GTK4 desktop bar written in TypeScript/TSX for Hyprland. It uses:
 
 - **AGS 3** to build and run the project
 - **Gnim** for TSX and reactive state
-- **Astal** for Hyprland, audio, network, Bluetooth, battery, media, and tray data
+- **Astal** for audio, network, Bluetooth, battery, media, and tray data
+- **Hyprland IPC** for workspace and active-window state
 - **GTK4** for widgets, popovers, the calendar, animation, and styling
 - **GJS** as the JavaScript runtime (this is not Node.js)
 
@@ -41,11 +42,12 @@ ags run "$HOME/.config/ags/app.tsx" --log-file /tmp/ags.log
 ```text
 LEFT                                                   RIGHT
 [Power] [Date | Time] [Workspaces] [Window] [Media]    [Tray] [Network]
-                                                       [Bluetooth] [Audio]
-                                                       [Brightness] [Performance] [Battery]
+                                                       [Audio] [Brightness]
+                                                       [Performance] [Battery]
 ```
 
-- Power, clock, media, network, Bluetooth, audio, brightness, performance, and battery open clickable popovers.
+- The network section shows Ethernet and Wi-Fi status. Clicking Ethernet or the offline indicator opens `nm-connection-editor`.
+- The Bluetooth widget is hidden; to show it, import and render `BluetoothStatus` again in `widgets/Bar.tsx`.
 - The system tray and Hyprshade warm-light control are hidden behind a left-facing drawer arrow.
 - Empty Hyprland workspaces are hidden unless they are currently visible on a monitor.
 - The performance popover can switch between line and bar plots.
@@ -68,7 +70,7 @@ LEFT                                                   RIGHT
 │   ├── Power.tsx                   Lock/suspend/logout/reboot/shutdown
 │   ├── StatusDrawer.tsx            Click-to-reveal system tray
 │   ├── SystemMonitor.tsx           Metrics, history, Cairo plots
-│   ├── SystemStatus.tsx            Wi-Fi/Bluetooth/audio/brightness/battery
+│   ├── SystemStatus.tsx            Ethernet/Wi-Fi/Bluetooth/audio/brightness/battery
 │   ├── Tray.tsx                    StatusNotifier tray items and menus
 │   └── Workspaces.tsx              Occupied workspaces and active window
 ├── scripts/
@@ -77,6 +79,7 @@ LEFT                                                   RIGHT
 │   ├── restart.sh                  Restart AGS after editing
 │   └── system-stats.sh             Produce performance data as JSON
 └── helpers/
+    ├── hyprland.ts                  Shared workspace/window state from Hyprland IPC
     ├── ags-rapl-read.c              Minimal Intel/AMD CPU energy reader
     └── install-rapl-helper.sh       Install the reader with limited capabilities
 ```
@@ -110,7 +113,6 @@ Installing the Astal meta-package is easiest when the distribution provides one.
 | GI namespace imported by this config | Astal component/package usually containing it |
 |---|---|
 | `Astal-4.0` | `libastal`, `libastal-4`, or Astal GTK4 base |
-| `AstalHyprland-0.1` | `libastal-hyprland` |
 | `AstalWp-0.1` | `libastal-wireplumber` |
 | `AstalNetwork-0.1` | `libastal-network` |
 | `AstalBluetooth-0.1` | `libastal-bluetooth` |
@@ -129,7 +131,7 @@ These commands are used directly by the tracked scripts:
 |---|---|---|
 | `bash` | `bash` | Installer and helper scripts |
 | `awk` | `gawk`, `mawk`, or another POSIX awk | Numeric calculations and parsing |
-| `jq` | `jq` | Performance JSON and Hyprland JSON parsing |
+| `jq` | `jq` | Performance and night-light scripts |
 | `ip` | `iproute2` | Selecting the default network interface |
 | `timeout` | `coreutils` | Bounding GPU probe execution |
 | `find`, `sort` | `findutils`, `coreutils` | Installation and powercap discovery |
@@ -171,7 +173,7 @@ Network, Bluetooth, battery, media, tray, and power-profile widgets may be empty
 
 Missing GPU or sensor tools do not prevent the bar from starting: unavailable metrics display `—`. Brightness controls hide when neither a usable kernel backlight nor DDC/CI display is found.
 
-The night-light drawer action additionally expects `warm_1.glsl` through `warm_5.glsl` under `~/.config/hypr/hypr_conf/shaders/`. Its current `hyprctl eval` command targets this dotfiles setup's Lua Hyprland configuration provider; replace `scripts/nightlight.sh` with `hyprshade` or a normal `hyprctl keyword decoration:screen_shader ...` implementation on a stock Hyprland configuration.
+The night-light drawer action uses `warm_1.glsl` through `warm_5.glsl` from the `hypr` package under `~/.config/hypr/shaders/`, with `~/.config/hypr/hypr_conf/shaders/` as a fallback for older installs. Its `hyprctl eval` command and the workspace buttons require Lua Hyprland. On legacy Hyprland, adapt those commands or use the separate Waybar package.
 
 ### Optional CPU wattage helper build dependencies
 
@@ -353,18 +355,9 @@ Calling an accessor inside `createComputed` registers it as a dependency.
 
 ### Poll external data: `createPoll`
 
-Use polling only when an event-driven Astal service is unavailable:
+Performance metrics use `createPoll` where the system sources do not provide events. Prefer an argument array over a shell command string.
 
-```tsx
-const title = createPoll(
-  "Desktop",
-  1000,
-  ["bash", "-c", "hyprctl activewindow -j | jq -r '.title'"],
-  (output) => output.trim() || "Desktop",
-)
-```
-
-Prefer an argument array over one heavily quoted command string. It avoids shell-parsing mistakes.
+Workspace and window state no longer poll. `helpers/hyprland.ts` shares one connection to `$XDG_RUNTIME_DIR/hypr/$HYPRLAND_INSTANCE_SIGNATURE/.socket2.sock`. It groups related events and refreshes state from `hyprctl` JSON, so start AGS inside the Hyprland session.
 
 ### Render reactive lists: `<For>`
 
@@ -423,7 +416,6 @@ The tray drawer uses `Gtk.Revealer` instead:
 
 | Import | Purpose |
 |---|---|
-| `gi://AstalHyprland` | Workspaces, windows, dispatchers |
 | `gi://AstalWp` | PipeWire/WirePlumber audio |
 | `gi://AstalNetwork` | NetworkManager and access points |
 | `gi://AstalBluetooth` | BlueZ adapters and devices |
