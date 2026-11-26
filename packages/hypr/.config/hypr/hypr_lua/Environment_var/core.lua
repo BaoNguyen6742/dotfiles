@@ -27,4 +27,4 @@ hl.env("__GL_GSYNC_ALLOWED", "1")
 -- Linux Variables
 hl.env("EDITOR", " nvim")
 
-hl.env("AQ_NO_ATOMIC", "1")
+-- hl.env("AQ_NO_ATOMIC", "1")

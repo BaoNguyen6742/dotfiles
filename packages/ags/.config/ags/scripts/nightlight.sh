@@ -2,7 +2,7 @@
 set -euo pipefail
 
 LEVEL_FILE="${XDG_RUNTIME_DIR:-/tmp}/ags-hyprshade-level"
-SHADER_DIR="$HOME/.config/hypr/shaders"
+HYPR_CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/hypr"
 DEFAULT_LEVEL=3
 MIN_LEVEL=1
 MAX_LEVEL=5
@@ -35,7 +35,16 @@ set_shader() {
 }
 
 apply_level() {
-  set_shader "$SHADER_DIR/warm_${level}.glsl"
+  local name="warm_${level}.glsl"
+  local shader="$HYPR_CONFIG_DIR/shaders/$name"
+  if [[ ! -r "$shader" ]]; then
+    shader="$HYPR_CONFIG_DIR/hypr_conf/shaders/$name"
+  fi
+  if [[ ! -r "$shader" ]]; then
+    printf 'Night light: %s not found in either shader directory under %s\n' "$name" "$HYPR_CONFIG_DIR" >&2
+    return 1
+  fi
+  set_shader "$shader"
 }
 
 case "${1:-status}" in

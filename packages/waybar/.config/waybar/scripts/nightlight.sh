@@ -1,7 +1,20 @@
 #!/bin/bash
 
 LEVEL_FILE="/tmp/shader_level"
-SHADER_DIR="$HOME/.config/hypr/hypr_conf/shaders"
+HYPR_CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/hypr"
+
+apply_level() {
+    local name="warm_${1}.glsl"
+    local shader="$HYPR_CONFIG_DIR/shaders/$name"
+    if [[ ! -r "$shader" ]]; then
+        shader="$HYPR_CONFIG_DIR/hypr_conf/shaders/$name"
+    fi
+    if [[ ! -r "$shader" ]]; then
+        printf 'Night light: %s not found in either shader directory under %s\n' "$name" "$HYPR_CONFIG_DIR" >&2
+        return 1
+    fi
+    hyprshade on "$shader"
+}
 
 # Set default level
 if [ ! -f "$LEVEL_FILE" ]; then
@@ -14,7 +27,7 @@ if [ "$1" == "toggle" ]; then
     if [ "$(hyprshade current)" ]; then # Check if ANY shader is active
         hyprshade off
     else
-        hyprshade on "$SHADER_DIR/warm_${CURRENT_LEVEL}.glsl"
+        apply_level "$CURRENT_LEVEL" || exit $?
     fi
     exit 0
 
@@ -23,16 +36,16 @@ elif [ "$1" == "up" ]; then
     NEW_LEVEL=$((CURRENT_LEVEL - 1))
     if [ "$NEW_LEVEL" -lt 1 ]; then NEW_LEVEL=1; fi
     echo "$NEW_LEVEL" >"$LEVEL_FILE"
-    hyprshade on "$SHADER_DIR/warm_${NEW_LEVEL}.glsl"
-    exit 0
+    apply_level "$NEW_LEVEL"
+    exit $?
 
 elif [ "$1" == "down" ]; then
     if [ ! "$(hyprshade current)" ]; then exit 0; fi # Do nothing if OFF
     NEW_LEVEL=$((CURRENT_LEVEL + 1))
     if [ "$NEW_LEVEL" -gt 5 ]; then NEW_LEVEL=5; fi
     echo "$NEW_LEVEL" >"$LEVEL_FILE"
-    hyprshade on "$SHADER_DIR/warm_${NEW_LEVEL}.glsl"
-    exit 0
+    apply_level "$NEW_LEVEL"
+    exit $?
 fi
 
 # --- OUTPUT JSON ---
