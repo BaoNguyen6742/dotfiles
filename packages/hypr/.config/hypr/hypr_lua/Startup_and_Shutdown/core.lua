@@ -1,7 +1,7 @@
 hl.on("hyprland.start", function()
 	hl.exec_cmd("hyprpaper")
 	hl.exec_cmd("hypridle")
-	hl.exec_cmd('ags run "$HOME/.config/ags/app.tsx" --log-file /tmp/ags.log')
+	hl.exec_cmd('"$HOME/.config/ags/scripts/start.sh"')
 	hl.exec_cmd("systemctl --user start hyprpolkitagent")
 	hl.exec_cmd("dunst")
 	hl.exec_cmd("wl-paste --type text  --watch cliphist store")

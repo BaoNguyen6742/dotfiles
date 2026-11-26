@@ -34,7 +34,7 @@ After pulling updates on another machine, refresh links with `./scripts/stow.sh 
 To start the bar automatically, add this command to the target machine's Hyprland startup configuration:
 
 ```bash
-ags run "$HOME/.config/ags/app.tsx" --log-file /tmp/ags.log
+"$HOME/.config/ags/scripts/start.sh"
 ```
 
 ## Current layout
@@ -76,6 +76,7 @@ LEFT                                                   RIGHT
 ├── scripts/
 │   ├── monitor-brightness.sh       Read/set backlight or DDC/CI brightness
 │   ├── nightlight.sh               Toggle and adjust Hyprshade
+│   ├── start.sh                    Launch AGS with the GTK4 layer-shell library
 │   ├── restart.sh                  Restart AGS after editing
 │   └── system-stats.sh             Produce performance data as JSON
 └── helpers/
@@ -222,7 +223,7 @@ The generated list should include the Astal namespaces in the table above. Then 
 ```bash
 ~/.config/ags/scripts/system-stats.sh | jq .
 ~/.config/ags/scripts/monitor-brightness.sh DP-1
-ags run ~/.config/ags/app.tsx --log-file /tmp/ags.log
+~/.config/ags/scripts/start.sh
 ```
 
 Replace `DP-1` with a connector reported by `hyprctl monitors`. A brightness result of `-1` means that connector has no usable backlight/DDC backend, which is valid on unsupported displays.
@@ -258,8 +259,10 @@ Hyprland starts the project from:
 with the equivalent of:
 
 ```bash
-ags run ~/.config/ags/app.tsx --log-file /tmp/ags.log
+~/.config/ags/scripts/start.sh
 ```
+
+The launcher normally uses `ags run`. If the installed AGS build expects Fedora's missing `/usr/lib64/libgtk4-layer-shell.so` symlink, it uses the installed `.so.0` library instead. Both paths log to `/tmp/ags.log`.
 
 ## Understanding TSX widgets
 
