@@ -19,7 +19,7 @@ function Action({
   return (
     <button class={danger ? "power-action danger" : "power-action"} onClicked={() => run(command)}>
       <box spacing={10}>
-        <label label={icon} />
+        <label class="power-action-icon" label={icon} />
         <label label={label} xalign={0} />
       </box>
     </button>
@@ -35,7 +35,7 @@ export default function PowerMenu() {
           <label class="panel-title" label="Session" xalign={0} />
           <Action icon="󰌾" label="Lock" command="hyprlock" />
           <Action icon="󰤄" label="Suspend" command={["systemctl", "suspend"]} />
-          <Action icon="󰍃" label="Log out" command={["hyprctl", "dispatch", "exit"]} />
+          <Action icon="󰍃" label="Log out" command={["hyprctl", "eval", "hl.dispatch(hl.dsp.exit())"]} />
           <Action icon="󰜉" label="Reboot" command={["systemctl", "reboot"]} danger />
           <Action icon="󰐥" label="Shut down" command={["systemctl", "poweroff"]} danger />
         </box>

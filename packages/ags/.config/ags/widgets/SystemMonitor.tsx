@@ -332,7 +332,7 @@ export default function SystemMonitor() {
               />
 
               <MetricRow
-                icon="󰓅"
+                icon="󰇚"
                 title="Download"
                 className="download-metric"
                 value={stats((value) => bytes(value.down))}
@@ -341,7 +341,7 @@ export default function SystemMonitor() {
               />
 
               <MetricRow
-                icon="󰓇"
+                icon="󰕒"
                 title="Upload"
                 className="upload-metric"
                 value={stats((value) => bytes(value.up))}

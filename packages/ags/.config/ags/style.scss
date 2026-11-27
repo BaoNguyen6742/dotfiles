@@ -113,6 +113,11 @@ window.Bar {
   margin: 0;
 }
 
+.tray popover.menu check,
+.tray popover.menu radio {
+  color: inherit;
+}
+
 .status-drawer {
   min-height: 30px;
 }
@@ -263,6 +268,8 @@ popover > contents {
 }
 
 .power-panel { min-width: 210px; }
+.power-action-icon,
+.metric-icon { font-family: "JetBrainsMono Nerd Font", monospace; }
 .power-action.danger { color: $red; }
 
 .monitor-panel {
