@@ -59,9 +59,10 @@ hl.config({
 		sensitivity = -0.1,
 		accel_profile = "flat",
 		force_no_accel = true,
-		follow_mouse = 1,
+		follow_mouse = 2,
 	},
 
+	-- Use software cursors to avoid flicker on NVIDIA.
 	cursor = {
 		no_hardware_cursors = 1,
 	},
