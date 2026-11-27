@@ -105,7 +105,7 @@ function start() {
           return
         }
         const event = line.split(">>", 1)[0]
-        if (/^(workspace|focusedmon|createworkspace|destroyworkspace|moveworkspace|renameworkspace|activespecial|openwindow|closewindow|movewindow|activewindow|windowtitle|monitoradded|monitorremoved|configreloaded)/.test(event)) {
+        if (/^(workspace|focusedmon|createworkspace|destroyworkspace|moveworkspace|renameworkspace|changeworkspaceid|activespecial|openwindow|closewindow|movewindow|activewindow|windowtitle|monitoradded|monitorremoved|configreloaded)/.test(event)) {
           scheduleRefresh()
         }
         readLine(input, token)
