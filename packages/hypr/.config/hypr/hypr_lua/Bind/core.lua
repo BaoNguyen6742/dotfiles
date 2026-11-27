@@ -52,6 +52,8 @@ bind("SHIFT + V", hl.dsp.exec_cmd("cliphist list | rofi -dmenu | cliphist decode
 
 -- Print copies the selection; Super+Print opens it in Swappy.
 hl.bind("Print", hl.dsp.exec_cmd('grim -g "$(slurp)" - | wl-copy'))
-bind("Print", hl.dsp.exec_cmd('grim -g "$(slurp)" - | swappy -f -'))
+hl.bind("SHIFT + Print", hl.dsp.exec_cmd("grim -o \"$(hyprctl activeworkspace -j | jq -r '.monitor')\" - | wl-copy"))
+bind("SHIFT + Print", hl.dsp.exec_cmd("grim -o \"$(hyprctl activeworkspace -j | jq -r '.monitor')\" - | satty -f -"))
+bind("Print", hl.dsp.exec_cmd('grim -g "$(slurp)" - | satty -f -'))
 
 hl.bind("mouse:276", hl.dsp.exec_cmd("~/.config/hypr/hypr_conf/Scripts/spam_F.sh"))
