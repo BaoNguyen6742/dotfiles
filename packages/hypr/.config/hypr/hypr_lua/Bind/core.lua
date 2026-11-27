@@ -1,3 +1,5 @@
+local workspace = require("hypr_lua.Bind.workspace")
+
 local terminal = "wezterm"
 local file_manager = "thunar"
 local menu = "rofi -show drun"
@@ -37,6 +39,11 @@ bind(
 		workspace = "e+1",
 	})
 )
+
+bind("CTRL + left", workspace.move_left)
+bind("CTRL + right", workspace.move_right)
+bind("ALT + left", workspace.swap_left)
+bind("ALT + right", workspace.swap_right)
 
 bind("mouse:272", hl.dsp.window.drag())
 bind("mouse:273", hl.dsp.window.resize())
