@@ -54,38 +54,9 @@ local function swap_workspace_contents(step)
 	end
 
 	local target_workspace = find_adjacent_workspace(current_id, step)
-	local target_monitor = target_workspace and target_workspace.monitor
-	if not target_monitor then
-		return
+	if target_workspace then
+		swap_workspace_ids(current_id, target_workspace.id)
 	end
-	local target_id = target_workspace.id
-
-	if current_monitor.name == target_monitor.name then
-		swap_workspace_ids(current_id, target_id)
-		return
-	end
-
-	local active_on_target = target_monitor.active_workspace
-	if not active_on_target or active_on_target.id ~= target_id then
-		local result = hl.dispatch(hl.dsp.focus({ workspace = target_id }))
-		active_on_target = target_monitor.active_workspace
-		if not result.ok or not active_on_target or active_on_target.id ~= target_id then
-			return
-		end
-	end
-
-	if not swap_workspace_ids(current_id, target_id) then
-		return
-	end
-	local result = hl.dispatch(hl.dsp.workspace.swap_monitors({
-		monitor1 = current_monitor.name,
-		monitor2 = target_monitor.name,
-	}))
-	if not result.ok then
-		swap_workspace_ids(target_id, current_id)
-		return
-	end
-	hl.dispatch(hl.dsp.focus({ monitor = target_monitor.name }))
 end
 
 return {
