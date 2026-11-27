@@ -30,7 +30,7 @@ function module.apply_to_config(config)
 				Down = { streak = 1, button = { WheelUp = 1 } },
 			},
 			mods = "NONE",
-			action = act.ScrollByLine(-3),
+			action = act.ScrollByLine(-10),
 		},
 		-- Scroll up by 10 lines when scrolling down
 		{
@@ -38,7 +38,7 @@ function module.apply_to_config(config)
 				Down = { streak = 1, button = { WheelDown = 1 } },
 			},
 			mods = "NONE",
-			action = act.ScrollByLine(3),
+			action = act.ScrollByLine(10),
 		},
 	}
 end
