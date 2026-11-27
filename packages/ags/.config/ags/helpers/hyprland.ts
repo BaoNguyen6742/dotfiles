@@ -22,7 +22,6 @@ function start() {
   let stream: Gio.DataInputStream | null = null
   let cancellable: Gio.Cancellable | null = null
   let reconnectTimer = 0
-  let refreshTimer = 0
   let refreshing = false
   let dirty = false
 
@@ -58,19 +57,9 @@ function start() {
       refreshing = false
       if (dirty && !disposed) {
         dirty = false
-        scheduleRefresh()
+        void refresh()
       }
     }
-  }
-
-  function scheduleRefresh() {
-    if (disposed || refreshTimer) return
-    // Coalesce event bursts (for example when swapping entire workspaces).
-    refreshTimer = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 50, () => {
-      refreshTimer = 0
-      void refresh()
-      return GLib.SOURCE_REMOVE
-    })
   }
 
   function disconnect() {
@@ -106,7 +95,7 @@ function start() {
         }
         const event = line.split(">>", 1)[0]
         if (/^(workspace|focusedmon|createworkspace|destroyworkspace|moveworkspace|renameworkspace|changeworkspaceid|activespecial|openwindow|closewindow|movewindow|activewindow|windowtitle|monitoradded|monitorremoved|configreloaded)/.test(event)) {
-          scheduleRefresh()
+          void refresh()
         }
         readLine(input, token)
       } catch (error) {
@@ -139,7 +128,7 @@ function start() {
         stream = new Gio.DataInputStream({ base_stream: connected.get_input_stream() })
         readLine(stream, token)
         // Subscribe before fetching so changes during initialization aren't lost.
-        scheduleRefresh()
+        void refresh()
       } catch (error) {
         if (!disposed && !token.is_cancelled()) retry(error)
       }
@@ -149,7 +138,6 @@ function start() {
   connect()
   return () => {
     disposed = true
-    if (refreshTimer) GLib.source_remove(refreshTimer)
     if (reconnectTimer) GLib.source_remove(reconnectTimer)
     disconnect()
   }
