@@ -3,19 +3,43 @@
   "packages": [
     {
       "source": "git:github.com/apmantza/pi-free",
-      "extensions": [
-        "-index.ts"
-      ]
+      "extensions": [],
+      "piExtmgrDisabled": {
+        "version": 1,
+        "originalForm": "object",
+        "fields": {
+          "extensions": [
+            "-index.ts"
+          ]
+        }
+      },
+      "skills": [],
+      "prompts": [],
+      "themes": [],
+      "autoload": true
     },
-    "npm:pi-subagents",
+    {
+      "source": "npm:pi-subagents",
+      "piExtmgrDisabled": {
+        "version": 1,
+        "originalForm": "string",
+        "fields": {}
+      },
+      "extensions": [],
+      "skills": [],
+      "prompts": [],
+      "themes": [],
+      "autoload": true
+    },
     "npm:@ayulab/oh-my-pi",
     "npm:@ff-labs/pi-fff",
     "npm:pi-btw",
     "npm:pi-extmgr",
-    "npm:@ff-labs/fff-bun@0.10.0"
+    "npm:@ff-labs/fff-bun@0.10.0",
+    "npm:pi-web-access"
   ],
   "defaultProvider": "openai-codex",
-  "defaultModel": "gpt-5.6-sol",
+  "defaultModel": "gpt-5.5",
   "defaultThinkingLevel": "high",
   "compaction": {
     "enabled": true
@@ -25,7 +49,7 @@
     "blockImages": false
   },
   "enableSkillCommands": true,
-  "showHardwareCursor": false,
+  "showHardwareCursor": true,
   "fullscreenWheelScrollLines": 8,
   "terminal": {
     "showTerminalProgress": true
@@ -40,5 +64,12 @@
   "treeFilterMode": "default",
   "warnings": {
     "anthropicExtraUsage": true
+  },
+  "lastChangelogVersion": "1.6.1",
+  "extensionChangelogVersions": {
+    "{\"source\":\"git:github.com/apmantza/pi-free\",\"scope\":\"user\"}": "2.9.0",
+    "{\"source\":\"npm:pi-subagents\",\"scope\":\"user\"}": "0.90.0",
+    "{\"source\":\"npm:pi-extmgr\",\"scope\":\"user\"}": "0.4.2",
+    "{\"source\":\"npm:pi-web-access\",\"scope\":\"user\"}": "0.48.0"
   }
 }
